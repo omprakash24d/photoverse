@@ -131,9 +131,9 @@ Links to these pages are available in the website footer.
 
 Developed by Om Prakash.
 
-*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/om-prakash-yadav-991b29150/)
-*   **GitHub**: [OmPrakashAhir](https://github.com/OmPrakashAhir)
-*   **Twitter**: [@OmPraka96205339](https://twitter.com/OmPraka96205339)
+*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/omprakash24d/)
+*   **GitHub**: [OmPrakashAhir](https://github.com/omprakash24d)
+*   **Twitter**: [@OmPraka96205339](https://twitter.com/omprakash25d)
 
 ---
 
