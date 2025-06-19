@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2, RefreshCcwIcon, Shuffle } from 'lucide-react';
+import { Wand2, Loader2, RefreshCcwIcon, Shuffle, Sparkles } from 'lucide-react'; // Added Sparkles
 import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -59,7 +59,6 @@ export function PoemCustomizationForm({
   };
   
   const handleSubmit = () => {
-    // Check if description is empty or only whitespace
     if (!description || description.trim() === "") {
        toast({ 
           variant: "destructive", 
@@ -73,7 +72,7 @@ export function PoemCustomizationForm({
 
   const handleResetOptions = () => {
     if (onResetSettingsRequest) {
-      onResetSettingsRequest(); // This already shows a toast in page.tsx
+      onResetSettingsRequest(); 
     }
   };
 
@@ -84,11 +83,13 @@ export function PoemCustomizationForm({
     const randomLength = LENGTHS[Math.floor(Math.random() * LENGTHS.length)];
     
     const newSettings: PoemSettings = {
-      ...settings, // Keep custom instruction if any, or reset it too: customInstruction: ""
+      ...settings, 
       language: randomLanguage,
       style: randomStyle,
       tone: randomTone,
       poemLength: randomLength,
+      // customInstruction: "", // Optionally reset custom instruction
+      // poeticDevices: "", // Optionally reset poetic devices
     };
     setSettings(newSettings);
     onSettingsChange(newSettings);
@@ -209,6 +210,23 @@ export function PoemCustomizationForm({
             />
         </div>
 
+        <div className="space-y-2">
+            <Label htmlFor="poetic-devices" className="font-body flex items-center">
+              <Sparkles className="mr-2 h-4 w-4 text-primary" /> {/* Icon for poetic devices */}
+              Poetic Devices (Optional)
+            </Label>
+            <Textarea
+              id="poetic-devices"
+              value={settings.poeticDevices || ''}
+              onChange={(e) => handleSettingChange('poeticDevices', e.target.value)}
+              placeholder="e.g., Metaphor, simile, personification, alliteration..."
+              rows={2}
+              className="font-body text-sm"
+              disabled={isGeneratingPoem}
+            />
+        </div>
+
+
         <div className="flex flex-col sm:flex-row gap-3 items-center justify-start">
             {onResetSettingsRequest && (
               <Button 
@@ -226,7 +244,7 @@ export function PoemCustomizationForm({
                 className="w-full sm:w-auto"
                 disabled={isGeneratingPoem}
               >
-                <Shuffle className="mr-2 h-4 w-4" /> Surprise Me!
+                <Shuffle className="mr-2 h-4 w-4" /> Surprise Me! (Options)
               </Button>
         </div>
 

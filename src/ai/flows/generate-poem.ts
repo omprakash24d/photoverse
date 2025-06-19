@@ -2,7 +2,7 @@
 // src/ai/flows/generate-poem.ts
 'use server';
 /**
- * @fileOverview Generates a poem based on an image description, language, style, tone, length, and custom instructions.
+ * @fileOverview Generates a poem based on an image description, language, style, tone, length, custom instructions, and optional poetic devices.
  *
  * - generatePoem - A function that handles the poem generation process.
  * - GeneratePoemInput - The input type for the generatePoem function.
@@ -21,6 +21,7 @@ const GeneratePoemInputSchema = z.object({
   tone: z.enum(TONES as [PoemTone, ...PoemTone[]]).describe('The tone/mood of the poem (e.g., Joyful, Calm, Melancholic).'),
   poemLength: z.enum(LENGTHS as [PoemLength, ...PoemLength[]]).describe('The desired length of the poem (Short, Medium, Long).'),
   customInstruction: z.string().optional().describe('Optional custom instruction for the poem generation (e.g., focus on a specific theme, include a certain word).'),
+  poeticDevices: z.string().optional().describe('Optional specific poetic devices to try and include (e.g., metaphor, simile, personification).'),
 });
 
 export type GeneratePoemInput = z.infer<typeof GeneratePoemInputSchema>;
@@ -64,6 +65,10 @@ Desired Length: The poem should be of {{{poemLength}}} length.
 Special Instruction: Pay close attention to this custom instruction and integrate it thoughtfully into your creation: "{{{customInstruction}}}"
 {{/if}}
 
+{{#if poeticDevices}}
+Poetic Devices: If appropriate for the style and tone, try to weave in the following poetic devices: "{{{poeticDevices}}}". Do this naturally and only if it enhances the poem.
+{{/if}}
+
 Strive for originality, emotional depth, and lyrical beauty. Avoid clichés. Ensure the poem connects meaningfully with the provided description.
 
 Now, present your poem:
@@ -81,4 +86,3 @@ const generatePoemFlow = ai.defineFlow(
     return output!;
   }
 );
-

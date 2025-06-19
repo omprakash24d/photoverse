@@ -10,6 +10,7 @@ export interface PoemSettings {
   tone: PoemTone;
   poemLength: PoemLength;
   customInstruction?: string;
+  poeticDevices?: string; // New field for poetic devices
 }
 
 export const LANGUAGES: PoemLanguage[] = ["English", "Hindi", "Hinglish"];

@@ -1,13 +1,13 @@
 
 "use client";
 
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import { AppStep, PoemSettings, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2, FileImage } from 'lucide-react';
 
 import { PageHeader } from '@/components/page-header';
 import { PhotoUpload } from '@/components/photo-upload';
@@ -17,6 +17,9 @@ import { PoemResultDisplay } from '@/components/poem-result-display';
 import { LoadingOverlay } from '@/components/loading-overlay';
 import { InfoAccordion } from '@/components/info-accordion';
 import { PageFooter } from '@/components/page-footer';
+import { PhotoVerseLogo } from '@/components/photo-verse-logo';
+import { toPng } from 'html-to-image';
+
 
 const defaultPoemSettings: PoemSettings = {
   language: 'English',
@@ -24,7 +27,17 @@ const defaultPoemSettings: PoemSettings = {
   tone: 'Reflective',
   poemLength: 'Medium',
   customInstruction: '',
+  poeticDevices: '', // Added poetic devices
 };
+
+interface ResolvedThemeColors {
+  background: string;
+  foreground: string;
+  primary: string;
+  border: string;
+  card: string;
+}
+
 
 const fileToDataUri = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -48,8 +61,13 @@ export default function PhotoVersePage() {
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [isPoemLoading, setIsPoemLoading] = useState<boolean>(false);
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
+  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+  const [imageExportThemeColors, setImageExportThemeColors] = useState<ResolvedThemeColors | null>(null);
+
 
   const { toast } = useToast();
+  const poemImageRef = useRef<HTMLDivElement>(null);
+
 
   const resetState = useCallback(() => {
     setCurrentStep('upload');
@@ -60,6 +78,8 @@ export default function PhotoVersePage() {
     setIsDescriptionLoading(false);
     setIsPoemLoading(false);
     setIsDescriptionEditable(false);
+    setIsDownloadingImage(false);
+    setImageExportThemeColors(null);
   }, []);
 
   const handleImageSelected = useCallback(async (imageSource: File | string) => {
@@ -125,10 +145,10 @@ export default function PhotoVersePage() {
   }, []);
 
   const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
-    if (imageDataUrl) { // Image was uploaded, but user is skipping AI desc for now
+    if (imageDataUrl) { 
         setImageDescription(currentDesc || "A beautiful scene"); 
-        setIsDescriptionEditable(true); // Allow editing in customize step
-    } else { // No image, starting with text
+        setIsDescriptionEditable(true); 
+    } else { 
         setImageDescription(currentDesc || ""); 
         setIsDescriptionEditable(true); 
     }
@@ -150,6 +170,7 @@ export default function PhotoVersePage() {
         tone: poemSettings.tone,
         poemLength: poemSettings.poemLength,
         customInstruction: poemSettings.customInstruction || '',
+        poeticDevices: poemSettings.poeticDevices || '',
       };
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
@@ -178,13 +199,14 @@ export default function PhotoVersePage() {
       tone: randomTone,
       poemLength: randomLength,
       customInstruction: '', 
+      poeticDevices: '',
     };
     
     const surpriseDescription = "A delightful burst of spontaneous creativity!";
     
     setImageDescription(surpriseDescription); 
     setPoemSettings(surpriseSettings); 
-    setIsDescriptionEditable(false); // Description for surprise poem is fixed
+    setIsDescriptionEditable(false);
 
     try {
       const poemInput: GeneratePoemInput = {
@@ -194,6 +216,7 @@ export default function PhotoVersePage() {
         tone: surpriseSettings.tone,
         poemLength: surpriseSettings.poemLength,
         customInstruction: surpriseSettings.customInstruction || '',
+        poeticDevices: surpriseSettings.poeticDevices || '',
       };
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
@@ -215,25 +238,21 @@ export default function PhotoVersePage() {
   const handleBack = () => {
     if (currentStep === 'display') {
       setCurrentStep('customize');
-      // If an image was involved, description remains non-editable.
-      // If it was a text-only or surprise poem, description becomes editable.
       setIsDescriptionEditable(!imageDataUrl); 
     }
     else if (currentStep === 'customize') {
         if (imageDataUrl) { 
-            // Came from an image, go back to description step
             setCurrentStep('describe');
             setIsDescriptionEditable(false); 
         } else { 
-            // Came from text-only input or surprise, going back from customize means starting over.
             resetState(); 
         }
     }
     else if (currentStep === 'describe') { 
-      // Came from image upload, going back from description means starting over.
       resetState(); 
     }
   };
+
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
@@ -304,5 +323,3 @@ export default function PhotoVersePage() {
     </div>
   );
 }
-
-    
