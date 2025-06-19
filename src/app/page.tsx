@@ -254,7 +254,7 @@ export default function PhotoVersePage() {
           </h1>
         </div>
         <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
-          Welcome to PhotoVerse! Unleash your creativity by transforming your cherished photos or simple text descriptions into unique, emotionally resonant poems with the power of AI. Upload an image, capture one with your webcam, or simply write down your thoughts, and let our AI craft poetic magic for you. Customize the language, style, and tone to create a poem that truly speaks to you.
+          Transform your photos (or just your words!) into emotionally resonant, AI-generated poems.
         </p>
       </header>
 
