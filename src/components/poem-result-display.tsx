@@ -1,19 +1,15 @@
 
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Download, Copy, RotateCcw, Pencil, FileImage, Loader2 } from 'lucide-react';
+import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { toPng } from 'html-to-image';
-import { PoemImageOutput, type ThemeColors } from './poem-image-output'; // Import ThemeColors type
-import { PhotoVerseLogo } from './photo-verse-logo';
-
 
 interface PoemResultDisplayProps {
   imageDataUrl: string | null;
@@ -32,10 +28,6 @@ export function PoemResultDisplay({
 }: PoemResultDisplayProps) {
   const { toast } = useToast();
   const [editablePoem, setEditablePoem] = useState<string>(poem || "");
-  const poemImageRef = useRef<HTMLDivElement>(null);
-  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
-  const [imageExportThemeColors, setImageExportThemeColors] = useState<ThemeColors | null>(null);
-
 
   useEffect(() => {
     setEditablePoem(poem || "");
@@ -83,81 +75,6 @@ export function PoemResultDisplay({
       });
     }
   };
-
-  const handleDownloadImage = async () => {
-    if (!poemImageRef.current || !editablePoem) {
-      toast({
-        variant: "destructive",
-        title: "Cannot Generate Image",
-        description: "Poem content is missing or the image generation component is not ready.",
-      });
-      return;
-    }
-
-    setIsDownloadingImage(true);
-    toast({
-      title: "Generating Image...",
-      description: "Please wait while your poem image is being created.",
-    });
-
-    // Create a temporary div to accurately compute styles based on the current theme
-    const tempDiv = document.createElement('div');
-    tempDiv.style.visibility = 'hidden'; // Keep it off-screen effectively
-    document.body.appendChild(tempDiv);
-    const isDark = document.documentElement.classList.contains('dark');
-    tempDiv.className = isDark ? 'dark' : 'light'; // Apply the theme class
-
-    const computed = getComputedStyle(tempDiv);
-    const resolvedColors: ThemeColors = {
-      background: computed.backgroundColor, // Already a full CSS color string e.g., "rgb(30, 41, 59)"
-      foreground: computed.color,           // Already a full CSS color string e.g., "rgb(226, 232, 240)"
-      primary: `hsl(${computed.getPropertyValue('--primary').trim()})`, // Construct HSL string
-      border: `hsl(${computed.getPropertyValue('--border').trim()})`,     // Construct HSL string
-    };
-    document.body.removeChild(tempDiv); // Clean up the temporary div
-
-    setImageExportThemeColors(resolvedColors); // Set state to trigger re-render of PoemImageOutput
-
-    // Delay to allow React to re-render PoemImageOutput with new props
-    setTimeout(async () => {
-      if (!poemImageRef.current) {
-        setIsDownloadingImage(false);
-        setImageExportThemeColors(null);
-        toast({ variant: "destructive", title: "Error", description: "Image generation component not found after delay." });
-        return;
-      }
-
-      try {
-        const dataUrl = await toPng(poemImageRef.current, {
-          quality: 0.95,
-          pixelRatio: 2,
-          // No need to set backgroundColor here if PoemImageOutput sets its own background
-        });
-        
-        const link = document.createElement('a');
-        link.download = 'photoverse_poem_image.png';
-        link.href = dataUrl;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        
-        toast({
-          title: "Image Downloaded!",
-          description: "Your poem image has been successfully downloaded.",
-        });
-      } catch (error) {
-        console.error('Failed to generate or download image:', error);
-        toast({
-          variant: "destructive",
-          title: "Image Generation Failed",
-          description: `Could not generate the image. Error: ${(error as Error).message}. Ensure browser allows canvas data extraction.`,
-        });
-      } finally {
-        setIsDownloadingImage(false);
-        setImageExportThemeColors(null); // Reset for next time
-      }
-    }, 100); // 100ms delay, adjust if needed
-  };
   
 
   return (
@@ -194,7 +111,7 @@ export function PoemResultDisplay({
                 onChange={(e) => setEditablePoem(e.target.value)}
                 rows={poem ? Math.max(10, poem.split('\n').length + 2) : 10}
                 className="font-body text-base sm:text-lg whitespace-pre-wrap leading-relaxed w-full bg-background/70 flex-grow"
-                disabled={isGeneratingPoem || isDownloadingImage}
+                disabled={isGeneratingPoem}
                 aria-label="Editable poem text area"
               />
             </>
@@ -202,48 +119,22 @@ export function PoemResultDisplay({
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-center items-center gap-3 p-4 md:p-6 bg-muted/30 border-t">
-        <Button onClick={onRegenerate} disabled={isGeneratingPoem || isDownloadingImage} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
-          <RefreshCw className={`mr-2 h-4 w-4 ${isGeneratingPoem ? 'animate-spin' : ''}`} />
+        <Button onClick={onRegenerate} disabled={isGeneratingPoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+          {isGeneratingPoem ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           {isGeneratingPoem ? 'Regenerating...' : 'Regenerate Poem'}
         </Button>
-        <Button onClick={handleCopyPoem} disabled={isGeneratingPoem || isDownloadingImage || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+        <Button onClick={handleCopyPoem} disabled={isGeneratingPoem || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           <Copy className="mr-2 h-4 w-4" />
           Copy Poem
         </Button>
-        <Button onClick={handleDownloadPoemTxt} disabled={isGeneratingPoem || isDownloadingImage || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+        <Button onClick={handleDownloadPoemTxt} disabled={isGeneratingPoem || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           <Download className="mr-2 h-4 w-4" />
           Download .txt
         </Button>
-        <Button onClick={handleDownloadImage} disabled={isGeneratingPoem || isDownloadingImage || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
-            {isDownloadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileImage className="mr-2 h-4 w-4" />}
-            {isDownloadingImage ? 'Downloading...' : 'Download as Image'}
-        </Button>
-        <Button onClick={onStartOver} variant="default" className="w-full xs:w-auto grow sm:grow-0" disabled={isDownloadingImage}>
+        <Button onClick={onStartOver} variant="default" className="w-full xs:w-auto grow sm:grow-0">
           <RotateCcw className="mr-2 h-4 w-4" /> Start New
         </Button>
       </CardFooter>
-
-      {/* This div is captured by html-to-image. It's rendered off-screen. */}
-      <div 
-        ref={poemImageRef} 
-        style={{ 
-            position: 'absolute', 
-            left: '-9999px', 
-            top: '-9999px',
-            zIndex: -10,
-        }}
-      >
-        {/* Conditionally render PoemImageOutput only when themeColors are available and we are attempting to download */}
-        {editablePoem && imageExportThemeColors && ( 
-           <PoemImageOutput
-            imageDataUrl={imageDataUrl}
-            poemText={editablePoem}
-            LogoComponent={PhotoVerseLogo}
-            siteName="PhotoVerse"
-            themeColors={imageExportThemeColors}
-          />
-        )}
-      </div>
     </Card>
   );
 }
