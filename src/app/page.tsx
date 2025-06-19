@@ -364,7 +364,7 @@ export default function PhotoVersePage() {
                 {howItWorksTitle}
               </AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
-                <p>PhotoVerse is designed to be an intuitive and inspiring tool. Here's a breakdown of how you can create your own AI-generated poems:</p>
+                <div>PhotoVerse is designed to be an intuitive and inspiring tool. Here's a breakdown of how you can create your own AI-generated poems:</div>
                 <ol className="list-decimal list-inside space-y-3 pl-4">
                   <li><strong>Provide Your Inspiration (Image, Text, or Surprise!):</strong>
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
@@ -420,23 +420,23 @@ export default function PhotoVersePage() {
               <AccordionContent className="text-base text-muted-foreground space-y-4 p-2">
                 <div>
                   <h4 className="font-semibold text-foreground mb-1">What kind of images work best?</h4>
-                  <p>Clear, well-focused images with distinct subjects or moods tend to yield the most evocative descriptions and poems. High-contrast images or those with interesting compositions can also inspire more creative AI output.</p>
+                  <div>Clear, well-focused images with distinct subjects or moods tend to yield the most evocative descriptions and poems. High-contrast images or those with interesting compositions can also inspire more creative AI output.</div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-1">Can I use PhotoVerse without an image?</h4>
-                  <p>Absolutely! If you don't have an image or prefer to start with an idea, simply choose the "Write Description Manually" option on the first step. You can also try the "Surprise Me with a Poem!" button for instant inspiration without any initial input from you.</p>
+                  <div>Absolutely! If you don't have an image or prefer to start with an idea, simply choose the "Write Description Manually" option on the first step. You can also try the "Surprise Me with a Poem!" button for instant inspiration without any initial input from you.</div>
                 </div>
                  <div>
                   <h4 className="font-semibold text-foreground mb-1">What is the "Surprise Me with a Poem!" feature?</h4>
-                  <p>This button on the starting page lets you instantly generate a poem. PhotoVerse will pick random settings (language, style, tone, length) and use a generic creative prompt to give you a unique poem without needing an image or manual description. It's great for quick inspiration or seeing what the AI can do!</p>
+                  <div>This button on the starting page lets you instantly generate a poem. PhotoVerse will pick random settings (language, style, tone, length) and use a generic creative prompt to give you a unique poem without needing an image or manual description. It's great for quick inspiration or seeing what the AI can do!</div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-1">How is the AI image description generated?</h4>
-                  <p>When you upload an image, PhotoVerse uses an advanced AI vision model to analyze its content, identifying objects, scenes, colors, and potential emotions or themes. This analysis is then translated into a textual description.</p>
+                  <div>When you upload an image, PhotoVerse uses an advanced AI vision model to analyze its content, identifying objects, scenes, colors, and potential emotions or themes. This analysis is then translated into a textual description.</div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-1">What if I don't like the generated poem?</h4>
-                  <p>Poetry is subjective! If the first result isn't quite what you're looking for:
+                  <div>Poetry is subjective! If the first result isn't quite what you're looking for:
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                       <li>Try clicking "Regenerate Poem" with the same settings; the AI might offer a different take.</li>
                       <li>Go back and edit the image description. Adding more detail, changing the focus, or adjusting the tone of the description can significantly impact the poem.</li>
@@ -444,15 +444,15 @@ export default function PhotoVersePage() {
                       <li>Use the "Custom Instruction" field to give the AI more specific guidance.</li>
                       <li>Once a poem is generated, you can directly edit it in the text area provided to perfect it.</li>
                     </ul>
-                  </p>
+                  </div>
                 </div>
                 <div>
                   <h4 className="font-semibold text-foreground mb-1">Are my images and poems stored?</h4>
-                  <p>Please refer to our "Your Data, Your Privacy" section for details. Generally, for guest users, images are processed for description and then discarded from our active servers. Poems are generated based on your input and are not stored permanently unless you are signed in and a future "save" feature is used explicitly. Your privacy is important to us.</p>
+                  <div>Please refer to our "Your Data, Your Privacy" section for details. Generally, for guest users, images are processed for description and then discarded from our active servers. Poems are generated based on your input and are not stored permanently unless you are signed in and a future "save" feature is used explicitly. Your privacy is important to us.</div>
                 </div>
                  <div>
                   <h4 className="font-semibold text-foreground mb-1">What languages, styles, and tones are available?</h4>
-                  <p>PhotoVerse offers a variety of options! You can select different languages (e.g., English, Hindi, Hinglish), poetic styles (e.g., Haiku, Free Verse, Sonnet, Romantic), tones (e.g., Joyful, Melancholic, Reflective), and poem lengths (Short, Medium, Long). Explore the dropdown menus in the "Customize Your Poem" step to see all available choices.</p>
+                  <div>PhotoVerse offers a variety of options! You can select different languages (e.g., English, Hindi, Hinglish), poetic styles (e.g., Haiku, Free Verse, Sonnet, Romantic), tones (e.g., Joyful, Melancholic, Reflective), and poem lengths (Short, Medium, Long). Explore the dropdown menus in the "Customize Your Poem" step to see all available choices.</div>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -462,14 +462,14 @@ export default function PhotoVersePage() {
                 {creativeSparkTitle}
               </AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
-                <p>PhotoVerse was born from a passion for connecting the visual with the lyrical, the image with the word. It's more than just an AI tool; it's an invitation to explore your creativity in new ways.</p>
+                <div>PhotoVerse was born from a passion for connecting the visual with the lyrical, the image with the word. It's more than just an AI tool; it's an invitation to explore your creativity in new ways.</div>
                 <ul className="list-disc list-inside space-y-2 pl-4">
                   <li><strong>Find Poetry Everywhere:</strong> We believe that every image, every scene, every fleeting thought holds the seed of a poem. PhotoVerse is here to help you nurture that seed, or even surprise you with one!</li>
                   <li><strong>Your Unique Voice:</strong> Experiment with different styles, tones, and languages. The AI provides the canvas, but your choices paint the masterpiece.</li>
                   <li><strong>A Tool for Inspiration:</strong> Whether you're a seasoned poet looking for a new spark or someone curious about expressing themselves through verse, PhotoVerse is designed to be an inspiring companion.</li>
                   <li><strong>Crafted with Care:</strong> Developed by Om Prakash, PhotoVerse is a project built with the hope of bringing a little more art and beauty into the digital world.</li>
                 </ul>
-                <p className="mt-2">We're continuously working to enhance PhotoVerse and bring you even more creative possibilities. Happy poem-crafting!</p>
+                <div className="mt-2">We're continuously working to enhance PhotoVerse and bring you even more creative possibilities. Happy poem-crafting!</div>
               </AccordionContent>
             </AccordionItem>
 
@@ -478,7 +478,7 @@ export default function PhotoVersePage() {
                 {privacyTitle}
               </AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
-                <p>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</p>
+                <div>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</div>
                 <ul className="list-disc list-inside space-y-2 pl-4">
                   <li><strong>Image Handling (if uploaded):</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends.</li>
                   <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone, length, custom instructions) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you unless you choose to save it via an account feature (if available and you are logged in). Currently, poems are not saved to user accounts automatically.</li>
@@ -489,7 +489,7 @@ export default function PhotoVersePage() {
                   <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Clerk) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
                   <li><strong>Ephemeral Creative Sessions (for guests):</strong> Think of your time on PhotoVerse as a creative session. If you are not logged in, once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
                 </ul>
-                <p className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</p>
+                <div className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</div>
               </AccordionContent>
             </AccordionItem>
           </Accordion>
@@ -507,3 +507,5 @@ export default function PhotoVersePage() {
     </div>
   );
 }
+
+    
