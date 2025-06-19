@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -6,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2 } from 'lucide-react';
+import { Wand2, Loader2, RefreshCcwIcon } from 'lucide-react';
 import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, LANGUAGES, STYLES, TONES } from '@/lib/types';
 
 interface PoemCustomizationFormProps {
@@ -17,6 +18,7 @@ interface PoemCustomizationFormProps {
   onSettingsChange: (settings: PoemSettings) => void;
   onGeneratePoem: () => void;
   isGeneratingPoem: boolean;
+  onResetSettingsRequest?: () => void;
 }
 
 export function PoemCustomizationForm({
@@ -27,6 +29,7 @@ export function PoemCustomizationForm({
   onSettingsChange,
   onGeneratePoem,
   isGeneratingPoem,
+  onResetSettingsRequest,
 }: PoemCustomizationFormProps) {
   const [description, setDescription] = useState(initialDescription);
   const [settings, setSettings] = useState<PoemSettings>(initialSettings);
@@ -36,13 +39,15 @@ export function PoemCustomizationForm({
   }, [initialDescription]);
   
   useEffect(() => {
+    // This ensures the form's local state updates if the parent's settings change
+    // (e.g., after a reset to defaults from the parent).
     setSettings(initialSettings);
   }, [initialSettings]);
 
   const handleSettingChange = (field: keyof PoemSettings, value: string) => {
     const newSettings = { ...settings, [field]: value };
-    setSettings(newSettings);
-    onSettingsChange(newSettings);
+    setSettings(newSettings); // Update local state immediately for responsiveness
+    onSettingsChange(newSettings); // Propagate to parent
   };
 
   const handleDescriptionUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -54,12 +59,18 @@ export function PoemCustomizationForm({
   
   const handleSubmit = () => {
     if(description.trim() === "") {
-      // Potentially show a toast error or inline message
-      alert("Please provide an image description.");
+      // This should ideally use the toast hook for consistency, but alert for simplicity here
+      alert("Please provide an image description."); 
       return;
     }
     onGeneratePoem();
   }
+
+  const handleResetOptions = () => {
+    if (onResetSettingsRequest) {
+      onResetSettingsRequest();
+    }
+  };
 
   return (
     <Card className="w-full shadow-lg">
@@ -91,6 +102,7 @@ export function PoemCustomizationForm({
             <Select
               value={settings.language}
               onValueChange={(value) => handleSettingChange('language', value as PoemLanguage)}
+              disabled={isGeneratingPoem}
             >
               <SelectTrigger id="poem-language" className="font-body">
                 <SelectValue placeholder="Select language" />
@@ -108,6 +120,7 @@ export function PoemCustomizationForm({
             <Select
               value={settings.style}
               onValueChange={(value) => handleSettingChange('style', value as PoemStyle)}
+              disabled={isGeneratingPoem}
             >
               <SelectTrigger id="poem-style" className="font-body">
                 <SelectValue placeholder="Select style" />
@@ -125,6 +138,7 @@ export function PoemCustomizationForm({
             <Select
               value={settings.tone}
               onValueChange={(value) => handleSettingChange('tone', value as PoemTone)}
+              disabled={isGeneratingPoem}
             >
               <SelectTrigger id="poem-tone" className="font-body">
                 <SelectValue placeholder="Select tone" />
@@ -138,8 +152,23 @@ export function PoemCustomizationForm({
           </div>
         </div>
       </CardContent>
-      <CardFooter className="flex justify-center">
-        <Button onClick={handleSubmit} disabled={isGeneratingPoem || description.trim() === ""} size="lg">
+      <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-6">
+        {onResetSettingsRequest && (
+          <Button 
+            onClick={handleResetOptions} 
+            variant="outline" 
+            className="w-full sm:w-auto"
+            disabled={isGeneratingPoem}
+          >
+            <RefreshCcwIcon className="mr-2 h-4 w-4" /> Reset Options
+          </Button>
+        )}
+        <Button 
+            onClick={handleSubmit} 
+            disabled={isGeneratingPoem || description.trim() === ""} 
+            size="lg"
+            className="w-full sm:w-auto"
+        >
           {isGeneratingPoem ? (
             <Loader2 className="mr-2 h-5 w-5 animate-spin" />
           ) : (
@@ -151,3 +180,4 @@ export function PoemCustomizationForm({
     </Card>
   );
 }
+

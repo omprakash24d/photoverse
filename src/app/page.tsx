@@ -30,7 +30,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-const initialPoemSettings: PoemSettings = {
+const defaultPoemSettings: PoemSettings = {
   language: 'English',
   style: 'Free Verse',
   tone: 'Reflective',
@@ -49,7 +49,7 @@ export default function PhotoVersePage() {
   const [currentStep, setCurrentStep] = useState<AppStep>('upload');
   const [imageDataUrl, setImageDataUrl] = useState<string | null>(null);
   const [imageDescription, setImageDescription] = useState<string>('');
-  const [poemSettings, setPoemSettings] = useState<PoemSettings>(initialPoemSettings);
+  const [poemSettings, setPoemSettings] = useState<PoemSettings>(defaultPoemSettings);
   const [generatedPoem, setGeneratedPoem] = useState<string | null>(null);
 
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
@@ -63,7 +63,7 @@ export default function PhotoVersePage() {
     setCurrentStep('upload');
     setImageDataUrl(null);
     setImageDescription('');
-    setPoemSettings(initialPoemSettings);
+    setPoemSettings(defaultPoemSettings);
     setGeneratedPoem(null);
     setIsDescriptionLoading(false);
     setIsPoemLoading(false);
@@ -169,6 +169,11 @@ export default function PhotoVersePage() {
       setIsPoemLoading(false);
     }
   }, [imageDescription, poemSettings, toast]);
+
+  const handleResetPoemSettingsToDefault = useCallback(() => {
+    setPoemSettings(defaultPoemSettings);
+    toast({ title: "Settings Reset", description: "Poem options have been reset to defaults." });
+  }, [toast]);
 
   const handleBack = () => {
     if (currentStep === 'display') setCurrentStep('customize');
@@ -293,6 +298,7 @@ export default function PhotoVersePage() {
             onSettingsChange={setPoemSettings}
             onGeneratePoem={handleGeneratePoem}
             isGeneratingPoem={isPoemLoading}
+            onResetSettingsRequest={handleResetPoemSettingsToDefault}
           />
         )}
 
@@ -419,3 +425,4 @@ export default function PhotoVersePage() {
     </div>
   );
 }
+
