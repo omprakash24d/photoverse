@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
-import type { AppStep, PoemSettings, PoemLength } from '@/lib/types'; // Import PoemLength
+import type { AppStep, PoemSettings, PoemLength } from '@/lib/types'; 
 import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -33,8 +33,8 @@ const defaultPoemSettings: PoemSettings = {
   language: 'English',
   style: 'Free Verse',
   tone: 'Reflective',
-  poemLength: 'Medium', // Default length
-  customInstruction: '', // Default empty custom instruction
+  poemLength: 'Medium', 
+  customInstruction: '', 
 };
 
 const fileToDataUri = (file: File): Promise<string> => {
@@ -159,7 +159,7 @@ export default function PhotoVersePage() {
         style: poemSettings.style,
         tone: poemSettings.tone,
         poemLength: poemSettings.poemLength,
-        customInstruction: poemSettings.customInstruction || '', // Ensure it's a string
+        customInstruction: poemSettings.customInstruction || '', 
       };
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
@@ -405,3 +405,5 @@ export default function PhotoVersePage() {
     </div>
   );
 }
+
+    
