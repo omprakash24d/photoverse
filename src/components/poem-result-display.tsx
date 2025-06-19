@@ -2,10 +2,10 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from 'react';
-import NextImage from 'next/image'; // Renamed to avoid conflict
+import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Download, Copy, RotateCcw, Pencil, FileImage } from 'lucide-react';
+import { RefreshCw, Download, Copy, RotateCcw, Pencil, FileImage, Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -98,25 +98,27 @@ export function PoemResultDisplay({
       description: "Please wait while your poem image is being created.",
     });
 
+    const node = poemImageRef.current;
+    const isDarkMode = document.documentElement.classList.contains('dark');
+    const originalClasses = node.className || ""; // Ensure originalClasses is a string
+    
+    // Temporarily apply theme class for html-to-image to pick up CSS variables
+    // Also, remove any existing 'light' or 'dark' classes to avoid conflicts
+    const classesWithoutTheme = originalClasses.replace(/\blight\b|\bdark\b/g, '').trim();
+    node.className = `${classesWithoutTheme} ${isDarkMode ? 'dark' : 'light'}`.trim();
+    
+    // Ensure styles are applied if class change is too fast for DOM update cycle
+    // Adding a slight delay or using requestAnimationFrame can help.
+    await new Promise(resolve => setTimeout(resolve, 50)); // Small delay
+
+
     try {
-      // Ensure styles are applied before capturing, a small delay can help.
-      await new Promise(resolve => setTimeout(resolve, 100));
-      
-      // Determine background color based on current theme
-      const isDarkMode = document.documentElement.classList.contains('dark');
-      const backgroundColor = isDarkMode ? 'hsl(240 10% 10%)' : 'hsl(240 100% 98.5%)';
-
-
-      const dataUrl = await toPng(poemImageRef.current, {
+      const dataUrl = await toPng(node, {
         quality: 0.95,
-        backgroundColor: backgroundColor, 
-        // Forcing a specific width and height for the capture to match PoemImageOutput's fixed width
-        // and an estimated height. This might need adjustment if content varies greatly.
-        // Alternatively, ensure PoemImageOutput itself has explicit dimensions set via style prop
-        // that html-to-image can respect.
-        // width: poemImageRef.current.offsetWidth, // Use actual width of the offscreen element
-        // height: poemImageRef.current.offsetHeight, // Use actual height
-        pixelRatio: 2, // For higher resolution
+        pixelRatio: 2,
+        // Let the component's CSS variables (resolved by the theme class) handle background.
+        // Explicitly setting it here might override the HSL variable if not careful.
+        // backgroundColor: isDarkMode ? 'hsl(240 10% 10%)' : 'hsl(240 100% 98.5%)',
       });
       
       const link = document.createElement('a');
@@ -135,9 +137,11 @@ export function PoemResultDisplay({
       toast({
         variant: "destructive",
         title: "Image Generation Failed",
-        description: `Could not generate the image. Error: ${(error as Error).message}`,
+        description: `Could not generate the image. Error: ${(error as Error).message}. Ensure browser allows canvas data extraction.`,
       });
     } finally {
+      // Restore original classes
+      node.className = originalClasses;
       setIsDownloadingImage(false);
     }
   };
@@ -198,7 +202,7 @@ export function PoemResultDisplay({
           Download .txt
         </Button>
         <Button onClick={handleDownloadImage} disabled={isGeneratingPoem || isDownloadingImage || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
-            <FileImage className={`mr-2 h-4 w-4 ${isDownloadingImage ? 'animate-spin' : ''}`} />
+            {isDownloadingImage ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <FileImage className="mr-2 h-4 w-4" />}
             {isDownloadingImage ? 'Downloading...' : 'Download as Image'}
         </Button>
         <Button onClick={onStartOver} variant="default" className="w-full xs:w-auto grow sm:grow-0" disabled={isDownloadingImage}>
@@ -206,25 +210,16 @@ export function PoemResultDisplay({
         </Button>
       </CardFooter>
 
-      {/* Hidden div for rendering the image to be downloaded */}
       <div 
         ref={poemImageRef} 
         style={{ 
             position: 'absolute', 
             left: '-9999px', 
-            top: '-9999px', 
+            top: '-9999px',
             zIndex: -10, 
-            // Ensure the theme variables are available if not directly inherited
-            // This might be tricky if html-to-image doesn't pick up CSS vars from non-rendered elements easily.
-            // Explicitly setting them via JS might be more robust if issues arise.
         }}
-        className={document.documentElement.classList.contains('dark') ? 'dark' : ''} // Apply dark/light class for HSL vars
       >
-        {/* 
-          This component will be rendered here but off-screen.
-          Its content will be updated with the current poem/image before capture.
-        */}
-        {editablePoem && ( // Only render if there's a poem to avoid issues with html-to-image on empty content
+        {editablePoem && ( 
            <PoemImageOutput
             imageDataUrl={imageDataUrl}
             poemText={editablePoem}
@@ -236,3 +231,5 @@ export function PoemResultDisplay({
     </Card>
   );
 }
+
+    

@@ -125,13 +125,14 @@ export default function PhotoVersePage() {
   }, []);
 
   const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
-    if (imageDataUrl) {
+    if (imageDataUrl) { // Image was uploaded, but user is skipping AI desc for now
         setImageDescription(currentDesc || "A beautiful scene"); 
-    } else {
+        setIsDescriptionEditable(true); // Allow editing in customize step
+    } else { // No image, starting with text
         setImageDescription(currentDesc || ""); 
+        setIsDescriptionEditable(true); 
     }
     setCurrentStep('customize');
-    setIsDescriptionEditable(true); 
   }, [imageDataUrl]);
 
   const handleGeneratePoem = useCallback(async () => {
@@ -183,7 +184,7 @@ export default function PhotoVersePage() {
     
     setImageDescription(surpriseDescription); 
     setPoemSettings(surpriseSettings); 
-    setIsDescriptionEditable(false); 
+    setIsDescriptionEditable(false); // Description for surprise poem is fixed
 
     try {
       const poemInput: GeneratePoemInput = {
@@ -214,21 +215,22 @@ export default function PhotoVersePage() {
   const handleBack = () => {
     if (currentStep === 'display') {
       setCurrentStep('customize');
-      if (!imageDataUrl) {
-        setIsDescriptionEditable(true);
-      } else {
-         setIsDescriptionEditable(false); 
-      }
+      // If an image was involved, description remains non-editable.
+      // If it was a text-only or surprise poem, description becomes editable.
+      setIsDescriptionEditable(!imageDataUrl); 
     }
     else if (currentStep === 'customize') {
         if (imageDataUrl) { 
+            // Came from an image, go back to description step
             setCurrentStep('describe');
             setIsDescriptionEditable(false); 
         } else { 
+            // Came from text-only input or surprise, going back from customize means starting over.
             resetState(); 
         }
     }
     else if (currentStep === 'describe') { 
+      // Came from image upload, going back from description means starting over.
       resetState(); 
     }
   };
@@ -267,7 +269,7 @@ export default function PhotoVersePage() {
         {currentStep === 'customize' && (
           <PoemCustomizationForm
             initialDescription={imageDescription}
-            isDescriptionEditable={isDescriptionEditable || !imageDataUrl} 
+            isDescriptionEditable={isDescriptionEditable} 
             onDescriptionChange={setImageDescription}
             initialSettings={poemSettings}
             onSettingsChange={setPoemSettings}
@@ -302,3 +304,5 @@ export default function PhotoVersePage() {
     </div>
   );
 }
+
+    

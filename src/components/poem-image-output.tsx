@@ -2,24 +2,21 @@
 "use client";
 
 import React from 'react';
-import Image from 'next/image';
-import type { PhotoVerseLogo } from './photo-verse-logo'; // Corrected import type
+import type { PhotoVerseLogo } from './photo-verse-logo';
 
 interface PoemImageOutputProps {
   imageDataUrl: string | null;
   poemText: string;
-  LogoComponent: typeof PhotoVerseLogo; // Expecting the component type itself
+  LogoComponent: typeof PhotoVerseLogo;
   siteName: string;
 }
 
-// Define a specific style for the output image container
 const containerStyle: React.CSSProperties = {
-  width: '600px', // Fixed width for consistent output
+  width: '600px', 
   padding: '30px',
-  backgroundColor: 'hsl(var(--background))', // Use theme background
-  color: 'hsl(var(--foreground))', // Use theme foreground
-  fontFamily: 'Lora, serif', // Match body font
-  border: '1px solid hsl(var(--border))',
+  backgroundColor: 'hsl(var(--background))', 
+  color: 'hsl(var(--foreground))',       
+  border: '1px solid hsl(var(--border))', 
   boxSizing: 'border-box',
   display: 'flex',
   flexDirection: 'column',
@@ -28,28 +25,30 @@ const containerStyle: React.CSSProperties = {
 
 const imageContainerStyle: React.CSSProperties = {
   width: '100%',
-  maxHeight: '300px', // Max height for the image
+  maxHeight: '300px', 
   display: 'flex',
   justifyContent: 'center',
   alignItems: 'center',
   overflow: 'hidden',
   borderRadius: '8px',
-  border: '1px solid hsl(var(--border))',
+  border: '1px solid hsl(var(--border))', 
 };
 
 const poemTextStyle: React.CSSProperties = {
+  fontFamily: "'Lora', serif", 
   fontSize: '16px',
   lineHeight: '1.6',
-  whiteSpace: 'pre-wrap', // Preserve line breaks from poem
+  whiteSpace: 'pre-wrap', 
   textAlign: 'center',
   maxHeight: '400px',
   overflowY: 'auto',
+  color: 'hsl(var(--foreground))', 
 };
 
 const footerStyle: React.CSSProperties = {
-  marginTop: 'auto', // Push footer to bottom
+  marginTop: 'auto', 
   paddingTop: '20px',
-  borderTop: '1px solid hsl(var(--border))',
+  borderTop: '1px solid hsl(var(--border))', 
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
@@ -57,10 +56,10 @@ const footerStyle: React.CSSProperties = {
 };
 
 const siteNameStyle: React.CSSProperties = {
+  fontFamily: "'Raleway', sans-serif", 
   fontSize: '14px',
   fontWeight: 'bold',
-  fontFamily: 'Raleway, sans-serif', // Match headline font
-  color: 'hsl(var(--primary))',
+  color: 'hsl(var(--primary))', 
 };
 
 export function PoemImageOutput({
@@ -73,12 +72,6 @@ export function PoemImageOutput({
     <div style={containerStyle}>
       {imageDataUrl && (
         <div style={imageContainerStyle}>
-          {/* 
-            Using a standard img tag here because next/image can sometimes be tricky
-            with html-to-image if not rendered in the main document flow correctly.
-            For off-screen rendering, standard img is more straightforward.
-            Ensure data-ai-hint is appropriate.
-          */}
           <img 
             src={imageDataUrl} 
             alt="User provided art" 
@@ -97,3 +90,5 @@ export function PoemImageOutput({
     </div>
   );
 }
+
+    
