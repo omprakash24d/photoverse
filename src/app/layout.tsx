@@ -1,11 +1,6 @@
 import { type Metadata } from 'next'
 import {
   ClerkProvider,
-  // SignInButton, // Removed as requested
-  // SignUpButton, // Removed as requested
-  // SignedIn, // Removed as requested
-  // SignedOut, // Removed as requested
-  // UserButton, // Removed as requested
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
