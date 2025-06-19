@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useCallback, useEffect } from 'react';
@@ -227,7 +228,10 @@ export default function PhotoVersePage() {
 
       <footer className="w-full max-w-3xl text-center mt-12 py-6 border-t border-border">
         <p className="text-sm text-muted-foreground font-body">
-          Crafted with AI &amp; <span className="text-accent">&hearts;</span> by PhotoVerse
+          Developed with <span className="text-accent">&hearts;</span> by Om Prakash.
+        </p>
+         <p className="text-xs text-muted-foreground/80 font-body mt-1">
+          PhotoVerse: An AI-powered tool to transform images into poetry.
         </p>
       </footer>
     </div>
