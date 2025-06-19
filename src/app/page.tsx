@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
-import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, LogIn, LogOut, UserCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, LogIn, LogOut, UserCircle, Sparkles } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 import { useAuth } from '@/context/auth-context'; // Import useAuth
 import {
@@ -202,6 +202,13 @@ export default function PhotoVersePage() {
     </div>
   );
 
+  const creativeSparkTitle = (
+    <div className="flex items-center">
+      <Sparkles className="mr-3 h-5 w-5 text-primary" />
+      The Creative Spark: Why PhotoVerse?
+    </div>
+  );
+
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
       <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
@@ -355,6 +362,22 @@ export default function PhotoVersePage() {
                     </ul>
                   </div>
                 </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="creative-spark">
+              <AccordionTrigger className="text-lg font-headline hover:no-underline focus:no-underline">
+                {creativeSparkTitle}
+              </AccordionTrigger>
+              <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
+                <p>PhotoVerse was born from a passion for connecting the visual with the lyrical, the image with the word. It's more than just an AI tool; it's an invitation to explore your creativity in new ways.</p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li><strong>Find Poetry Everywhere:</strong> We believe that every image, every scene, every fleeting thought holds the seed of a poem. PhotoVerse is here to help you nurture that seed.</li>
+                  <li><strong>Your Unique Voice:</strong> Experiment with different styles, tones, and languages. The AI provides the canvas, but your choices paint the masterpiece.</li>
+                  <li><strong>A Tool for Inspiration:</strong> Whether you're a seasoned poet looking for a new spark or someone curious about expressing themselves through verse, PhotoVerse is designed to be an inspiring companion.</li>
+                  <li><strong>Crafted with Care:</strong> Developed by Om Prakash, PhotoVerse is a project built with the hope of bringing a little more art and beauty into the digital world.</li>
+                </ul>
+                <p className="mt-2">We're continuously working to enhance PhotoVerse and bring you even more creative possibilities. Happy poem-crafting!</p>
               </AccordionContent>
             </AccordionItem>
 
