@@ -3,19 +3,20 @@
 
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, Camera, Image as ImageIcon, XCircle, Edit3 } from 'lucide-react';
+import { UploadCloud, Camera, Image as ImageIcon, XCircle, Edit3, Wand2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { WebcamCaptureModal } from './webcam-capture-modal';
 
 interface PhotoUploadProps {
-  onImageSelected: (file: File | string) => void; // File for upload, string (dataURL) for webcam
+  onImageSelected: (file: File | string) => void;
   isLoading?: boolean;
-  onSkipToDescription: () => void; // New prop to handle skipping image upload
+  onSkipToDescription: () => void;
+  onSurprisePoemRequest: () => void; // New prop for surprise poem
 }
 
-export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescription }: PhotoUploadProps) {
+export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescription, onSurprisePoemRequest }: PhotoUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
@@ -29,7 +30,7 @@ export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescri
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      onImageSelected(file); // This will trigger AI description
+      onImageSelected(file);
     }
   }, [onImageSelected]);
 
@@ -37,20 +38,18 @@ export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescri
     onDrop,
     accept: { 'image/*': ['.jpeg', '.png', '.gif', '.webp'] },
     multiple: false,
-    disabled: isLoading, // Disable dropzone when loading
+    disabled: isLoading,
   });
 
   const handleClearPreview = () => {
     setPreview(null);
     setFileName(null);
-    // Parent is already aware via onImageSelected or lack thereof.
-    // If an image was selected and is now cleared, the user effectively starts over or can select a new one.
   };
 
   const handleWebcamCapture = (dataUrl: string) => {
     setPreview(dataUrl);
     setFileName("webcam_capture.png");
-    onImageSelected(dataUrl); // Pass dataURL for webcam captures
+    onImageSelected(dataUrl);
     setIsWebcamModalOpen(false);
   };
 
@@ -59,13 +58,13 @@ export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescri
       <CardHeader>
         <CardTitle className="font-headline text-2xl text-center">Start Your Poem</CardTitle>
         <CardDescription className="text-center font-body">
-          Upload a photo, use your webcam, or start with just a description.
+          Upload a photo, use your webcam, start with words, or get a surprise poem!
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {preview && !isLoading ? ( // Only show preview if not loading (avoids flicker if loading starts immediately)
+        {preview && !isLoading ? (
           <div className="relative group aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-dashed border-primary/50">
-            <Image src={preview} alt={fileName || "Preview"} layout="fill" objectFit="contain" />
+            <Image src={preview} alt={fileName || "Preview"} layout="fill" objectFit="contain" data-ai-hint="user preview" />
             <Button
               variant="destructive"
               size="icon"
@@ -84,7 +83,7 @@ export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescri
           <div
             {...getRootProps()}
             className={`p-8 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors
-              ${isLoading ? 'cursor-not-allowed opacity-70 bg-muted/30' : 
+              ${isLoading ? 'cursor-not-allowed opacity-70 bg-muted/30' :
                 isDragActive ? 'border-accent bg-accent/10' : 'border-primary/30 hover:border-accent'}`}
           >
             <input {...getInputProps()} />
@@ -108,17 +107,22 @@ export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescri
             <Camera className="mr-2 h-4 w-4" /> Use Webcam
           </Button>
         </div>
-        {isLoading && <p className="text-center text-primary font-body">Processing image, please wait...</p>}
+        {isLoading && <p className="text-center text-primary font-body">Processing your request, please wait...</p>}
       </CardContent>
-      <CardFooter className="flex-col items-center justify-center pt-0 pb-6">
-         <div className="relative flex py-3 items-center w-4/5 sm:w-2/3 mx-auto">
+      <CardFooter className="flex-col items-center justify-center pt-0 pb-6 space-y-3">
+         <div className="relative flex py-2 items-center w-4/5 sm:w-2/3 mx-auto">
             <div className="flex-grow border-t border-muted-foreground/30"></div>
-            <span className="flex-shrink mx-4 text-xs text-muted-foreground">OR</span>
+            <span className="flex-shrink mx-4 text-xs text-muted-foreground uppercase">Or</span>
             <div className="flex-grow border-t border-muted-foreground/30"></div>
         </div>
-        <Button onClick={onSkipToDescription} variant="secondary" className="w-full sm:w-auto" disabled={isLoading}>
-            <Edit3 className="mr-2 h-4 w-4" /> Write Description Manually
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto justify-center">
+            <Button onClick={onSkipToDescription} variant="secondary" className="w-full sm:w-auto" disabled={isLoading}>
+                <Edit3 className="mr-2 h-4 w-4" /> Write Description Manually
+            </Button>
+            <Button onClick={onSurprisePoemRequest} variant="default" className="w-full sm:w-auto bg-accent hover:bg-accent/90 text-accent-foreground" disabled={isLoading}>
+                <Wand2 className="mr-2 h-4 w-4" /> Surprise Me with a Poem!
+            </Button>
+        </div>
       </CardFooter>
       <WebcamCaptureModal
         isOpen={isWebcamModalOpen}

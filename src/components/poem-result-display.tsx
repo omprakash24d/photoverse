@@ -8,7 +8,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { RefreshCw, Download, Copy, RotateCcw, Pencil, ImageIcon as DownloadImagePlaceholderIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
-import { Textarea } from '@/components/ui/textarea'; 
+import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 interface PoemResultDisplayProps {
@@ -30,7 +30,6 @@ export function PoemResultDisplay({
   const [editablePoem, setEditablePoem] = useState<string>(poem || "");
 
   useEffect(() => {
-    // Update editablePoem when the poem prop changes (e.g., after regeneration)
     setEditablePoem(poem || "");
   }, [poem]);
 
@@ -76,7 +75,7 @@ export function PoemResultDisplay({
       });
     }
   };
-  
+
   const handleDownloadImage = () => {
     toast({
       title: "Feature Coming Soon!",
@@ -99,8 +98,8 @@ export function PoemResultDisplay({
             <Image src={imageDataUrl} alt="Source image for the generated poem" layout="fill" objectFit="contain" data-ai-hint="artistic photography" />
           </div>
         )}
-        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col ${!imageDataUrl ? 'md:col-span-1' : ''}`}>
-          {isGeneratingPoem && !poem ? ( 
+        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col ${!imageDataUrl ? 'md:col-span-1' : ''} w-full`}>
+          {isGeneratingPoem && !poem ? (
             <div className="space-y-3">
               <Skeleton className="h-6 w-full" />
               <Skeleton className="h-6 w-5/6" />
@@ -108,7 +107,7 @@ export function PoemResultDisplay({
               <Skeleton className="h-6 w-3/4" />
               <Skeleton className="h-6 w-4/5" />
             </div>
-          ) : ( 
+          ) : (
             <>
               <Label htmlFor="editable-poem" className="font-body mb-2 flex items-center">
                 <Pencil className="mr-2 h-4 w-4 text-primary" /> Edit Your Poem:
@@ -117,9 +116,10 @@ export function PoemResultDisplay({
                 id="editable-poem"
                 value={editablePoem}
                 onChange={(e) => setEditablePoem(e.target.value)}
-                rows={poem ? Math.max(8, poem.split('\n').length + 2) : 8} 
-                className="font-body text-lg sm:text-xl whitespace-pre-wrap leading-relaxed w-full bg-background/70"
+                rows={poem ? Math.max(10, poem.split('\n').length + 2) : 10}
+                className="font-body text-base sm:text-lg whitespace-pre-wrap leading-relaxed w-full bg-background/70 flex-grow"
                 disabled={isGeneratingPoem}
+                aria-label="Editable poem text area"
               />
             </>
           )}
