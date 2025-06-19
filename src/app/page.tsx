@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { PhotoVerseLogo } from '@/components/photo-verse-logo';
 import { PhotoUpload } from '@/components/photo-upload';
 import { ImageDescriptionForm } from '@/components/image-description-form';
@@ -12,9 +12,14 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
-import { Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 const initialPoemSettings: PoemSettings = {
   language: 'English',
@@ -57,9 +62,9 @@ export default function PhotoVersePage() {
 
   const handleImageSelected = useCallback(async (imageSource: File | string) => {
     let dataUrl: string;
-    if (typeof imageSource === 'string') { // Webcam data URL
+    if (typeof imageSource === 'string') { 
       dataUrl = imageSource;
-    } else { // File object
+    } else { 
       try {
         dataUrl = await fileToDataUri(imageSource);
       } catch (error) {
@@ -77,7 +82,7 @@ export default function PhotoVersePage() {
       setImageDescription(result.description);
     } catch (error) {
       console.error("Error describing image:", error);
-      setImageDescription(""); // Allow manual input
+      setImageDescription(""); 
       toast({
         variant: "destructive",
         title: "AI Description Failed",
@@ -85,7 +90,7 @@ export default function PhotoVersePage() {
       });
     } finally {
       setIsDescriptionLoading(false);
-      setIsDescriptionEditable(false); // AI tried, user can edit
+      setIsDescriptionEditable(false); 
     }
   }, [toast]);
   
@@ -113,13 +118,13 @@ export default function PhotoVersePage() {
   const handleDescriptionConfirm = useCallback((description: string) => {
     setImageDescription(description);
     setCurrentStep('customize');
-    setIsDescriptionEditable(false); // Confirmed, not primarily editable in next step unless back button
+    setIsDescriptionEditable(false); 
   }, []);
 
   const handleSkipDescription = useCallback((currentDesc: string) => {
-    setImageDescription(currentDesc); // Keep what user might have typed
+    setImageDescription(currentDesc); 
     setCurrentStep('customize');
-    setIsDescriptionEditable(true); // User explicitly wants to write/edit in customize step
+    setIsDescriptionEditable(true); 
   }, []);
 
   const handleGeneratePoem = useCallback(async () => {
@@ -128,7 +133,7 @@ export default function PhotoVersePage() {
       return;
     }
     setIsPoemLoading(true);
-    setGeneratedPoem(null); // Clear previous poem
+    setGeneratedPoem(null); 
     try {
       const poemInput: GeneratePoemInput = {
         imageDescription,
@@ -151,14 +156,25 @@ export default function PhotoVersePage() {
     if (currentStep === 'display') setCurrentStep('customize');
     else if (currentStep === 'customize') setCurrentStep('describe');
     else if (currentStep === 'describe') {
-      // Optionally clear image data or keep it if user just wants to re-describe
-      // For simplicity, let's go back to upload and clear image
       setImageDataUrl(null);
       setImageDescription('');
       setCurrentStep('upload');
     }
   };
 
+  const howItWorksTitle = (
+    <div className="flex items-center">
+      <Info className="mr-3 h-5 w-5 text-primary" />
+      How PhotoVerse Works & Tips
+    </div>
+  );
+
+  const privacyTitle = (
+    <div className="flex items-center">
+      <ShieldCheck className="mr-3 h-5 w-5 text-primary" />
+      Your Data, Your Privacy
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
@@ -229,6 +245,53 @@ export default function PhotoVersePage() {
             </p>
           </div>
         )}
+
+        <section className="mt-12 w-full">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="how-it-works">
+              <AccordionTrigger className="text-lg font-headline hover:no-underline focus:no-underline">
+                {howItWorksTitle}
+              </AccordionTrigger>
+              <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
+                <p>PhotoVerse transforms your images into poetry through a simple three-step AI-powered process:</p>
+                <ol className="list-decimal list-inside space-y-2 pl-4">
+                  <li><strong>Upload Your Image:</strong> Start by uploading a photo from your device or capture one using your webcam. Clear, well-focused images generally lead to more detailed and relevant AI descriptions.</li>
+                  <li><strong>AI Describes Your Image:</strong> Our advanced AI analyzes your uploaded image and generates a textual description. You have the opportunity to review this description, edit it to better match your vision, or even write your own from scratch if you prefer. The more evocative and accurate the description, the richer and more personalized your poem will be!</li>
+                  <li><strong>Customize & Generate Poem:</strong> Choose your desired language (English, Hindi, or Hinglish), select a poetic style (like Haiku, Free Verse, Romantic, etc.), and set the tone (e.g., Joyful, Reflective, Humorous). Once you're ready, click "Generate Poem" and watch as PhotoVerse crafts a unique piece of poetry inspired by your image and preferences.</li>
+                </ol>
+                <div className="flex items-start mt-3 p-3 bg-accent/10 rounded-md">
+                  <Lightbulb className="mr-3 h-5 w-5 text-accent flex-shrink-0 mt-1" />
+                  <div>
+                    <h4 className="font-semibold text-foreground">Tips for Best Results:</h4>
+                    <ul className="list-disc list-inside space-y-1 mt-1">
+                      <li><strong>Image Quality:</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the description.</li>
+                      <li><strong>Detailed Descriptions:</strong> If you edit or write your own description, be specific! The more detail you provide, the more material the AI has to work with for the poem.</li>
+                      <li><strong>Experiment:</strong> Don't be afraid to try different combinations of languages, styles, and tones. You might be surprised by the variety of poems you can create from a single image!</li>
+                    </ul>
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
+            <AccordionItem value="privacy">
+              <AccordionTrigger className="text-lg font-headline hover:no-underline focus:no-underline">
+                {privacyTitle}
+              </AccordionTrigger>
+              <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
+                <p>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</p>
+                <ul className="list-disc list-inside space-y-2 pl-4">
+                  <li><strong>Image Handling:</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends. We only use it to create the initial description for your poem.</li>
+                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you.</li>
+                  <li><strong>No Personal Data Collection (Beyond Image Content):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) such as your name, email address, or location. You are responsible for the content of the images you choose to upload; please be mindful and avoid uploading images that contain sensitive personal information if you have privacy concerns.</li>
+                  <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data and poem preferences are protected during transit.</li>
+                  <li><strong>No Third-Party Sharing (Beyond Essential AI Services):</strong> Your images and text are only shared with the specific AI models required for generating image descriptions and poems. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
+                  <li><strong>Ephemeral Creative Sessions:</strong> Think of your time on PhotoVerse as a creative session. Once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application in a way that is tied to you.</li>
+                </ul>
+                <p className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </section>
       </main>
 
       <footer className="w-full max-w-3xl text-center mt-12 py-6 border-t border-border">
@@ -242,3 +305,5 @@ export default function PhotoVersePage() {
     </div>
   );
 }
+
+    
