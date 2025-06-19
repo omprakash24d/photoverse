@@ -9,6 +9,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Wand2, Loader2, RefreshCcwIcon, Shuffle } from 'lucide-react';
 import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
+import { useToast } from '@/hooks/use-toast';
+
 
 interface PoemCustomizationFormProps {
   initialDescription: string;
@@ -33,6 +35,7 @@ export function PoemCustomizationForm({
 }: PoemCustomizationFormProps) {
   const [description, setDescription] = useState(initialDescription);
   const [settings, setSettings] = useState<PoemSettings>(initialSettings);
+  const { toast } = useToast();
 
   useEffect(() => {
     setDescription(initialDescription);
@@ -56,9 +59,13 @@ export function PoemCustomizationForm({
   };
   
   const handleSubmit = () => {
-    if(description.trim() === "") {
-      // This should ideally use the toast hook for consistency
-      alert("Please provide an image description."); 
+    // Check if description is empty or only whitespace
+    if (!description || description.trim() === "") {
+       toast({ 
+          variant: "destructive", 
+          title: "Missing Description", 
+          description: "Please provide an image description or subject for the poem." 
+      });
       return;
     }
     onGeneratePoem();
@@ -66,7 +73,7 @@ export function PoemCustomizationForm({
 
   const handleResetOptions = () => {
     if (onResetSettingsRequest) {
-      onResetSettingsRequest();
+      onResetSettingsRequest(); // This already shows a toast in page.tsx
     }
   };
 
@@ -77,7 +84,7 @@ export function PoemCustomizationForm({
     const randomLength = LENGTHS[Math.floor(Math.random() * LENGTHS.length)];
     
     const newSettings: PoemSettings = {
-      ...settings, // Keep custom instruction if any
+      ...settings, // Keep custom instruction if any, or reset it too: customInstruction: ""
       language: randomLanguage,
       style: randomStyle,
       tone: randomTone,
@@ -85,6 +92,10 @@ export function PoemCustomizationForm({
     };
     setSettings(newSettings);
     onSettingsChange(newSettings);
+    toast({
+      title: "Options Randomized!",
+      description: "Poem language, style, tone, and length have been shuffled.",
+    });
   };
 
   return (
@@ -223,7 +234,7 @@ export function PoemCustomizationForm({
       <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-6">
         <Button 
             onClick={handleSubmit} 
-            disabled={isGeneratingPoem || description.trim() === ""} 
+            disabled={isGeneratingPoem || !description || description.trim() === ""} 
             size="lg"
             className="w-full sm:w-auto"
         >

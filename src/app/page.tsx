@@ -76,7 +76,7 @@ export default function PhotoVersePage() {
   const handleImageSelected = useCallback(async (imageSource: File | string) => {
     let dataUrl: string;
     if (typeof imageSource === 'string') {
-      dataUrl = imageSource;
+      dataUrl = imageSource; // It's already a data URL (from webcam)
     } else {
       try {
         dataUrl = await fileToDataUri(imageSource);
@@ -102,7 +102,7 @@ export default function PhotoVersePage() {
       });
     } finally {
       setIsDescriptionLoading(false);
-      setIsDescriptionEditable(false);
+      setIsDescriptionEditable(false); // AI description is initial, user confirms or edits
     }
   }, [toast]);
 
@@ -133,17 +133,20 @@ export default function PhotoVersePage() {
   const handleDescriptionConfirm = useCallback((description: string) => {
     setImageDescription(description);
     setCurrentStep('customize');
-    setIsDescriptionEditable(false);
+    setIsDescriptionEditable(false); // Confirmed, so not editable by default in customize screen unless no image
   }, []);
 
   const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
+    // If an image was uploaded, use currentDesc (which might be edited AI desc, or empty if user cleared it)
+    // If no image was ever uploaded, this path is for "Write Description Manually"
     if (imageDataUrl) {
-        setImageDescription(currentDesc || "A beautiful scene");
+        setImageDescription(currentDesc || "A beautiful scene"); // Default if cleared
     } else {
-        setImageDescription(currentDesc || "A creative thought");
+        // This is the "Write Description Manually" path from upload step
+        setImageDescription(currentDesc || ""); // Start with empty or passed desc
     }
     setCurrentStep('customize');
-    setIsDescriptionEditable(true);
+    setIsDescriptionEditable(true); // Always editable if skipping or manual entry
   }, [imageDataUrl]);
 
 
@@ -153,7 +156,7 @@ export default function PhotoVersePage() {
       return;
     }
     setIsPoemLoading(true);
-    setGeneratedPoem(null);
+    setGeneratedPoem(null); // Clear previous poem
     try {
       const poemInput: GeneratePoemInput = {
         imageDescription,
@@ -168,13 +171,17 @@ export default function PhotoVersePage() {
       setCurrentStep('display');
     } catch (error) {
       console.error("Error generating poem:", error);
-      toast({ variant: "destructive", title: "Poem Generation Failed", description: "Could not generate the poem. Please try again." });
+      toast({ variant: "destructive", title: "Poem Generation Failed", description: "Could not generate the poem. Please try again or adjust your settings." });
     } finally {
       setIsPoemLoading(false);
     }
   }, [imageDescription, poemSettings, toast]);
 
   const handleSurprisePoem = useCallback(async () => {
+    setIsPoemLoading(true); // Show loader immediately
+    setGeneratedPoem(null); // Clear previous poem
+    setImageDataUrl(null); // No image for this flow
+
     const randomLanguage = LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)];
     const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
     const randomTone = TONES[Math.floor(Math.random() * TONES.length)];
@@ -185,17 +192,15 @@ export default function PhotoVersePage() {
       style: randomStyle,
       tone: randomTone,
       poemLength: randomLength,
-      customInstruction: '',
+      customInstruction: '', // No custom instruction for a pure surprise
     };
     
     const surpriseDescription = "A delightful burst of spontaneous creativity!";
-    setImageDescription(surpriseDescription);
-    setPoemSettings(surpriseSettings);
-    setImageDataUrl(null); // No image for this flow
-    setIsDescriptionEditable(false);
+    
+    setImageDescription(surpriseDescription); // Set the description state
+    setPoemSettings(surpriseSettings); // Set the poem settings state
+    setIsDescriptionEditable(false); // Description is fixed for this initial surprise poem
 
-    setIsPoemLoading(true);
-    setGeneratedPoem(null);
     try {
       const poemInput: GeneratePoemInput = {
         imageDescription: surpriseDescription,
@@ -211,6 +216,8 @@ export default function PhotoVersePage() {
     } catch (error) {
       console.error("Error generating surprise poem:", error);
       toast({ variant: "destructive", title: "Surprise Poem Failed", description: "Could not generate the surprise poem. Please try again." });
+       // If fails, maybe reset to upload or stay on current screen (upload)
+      setCurrentStep('upload'); // Go back to upload on failure of surprise
     } finally {
       setIsPoemLoading(false);
     }
@@ -222,22 +229,26 @@ export default function PhotoVersePage() {
   }, [toast]);
 
   const handleBack = () => {
-    if (currentStep === 'display') setCurrentStep('customize');
+    if (currentStep === 'display') {
+      setCurrentStep('customize');
+      // If it was a surprise poem (no image data), description should be editable on customize screen
+      if (!imageDataUrl) {
+        setIsDescriptionEditable(true);
+      } else {
+        // If there was an image, the description shown in customize was the confirmed one, not typically editable unless skipped to
+         setIsDescriptionEditable(false); // Or maintain previous isDescriptionEditable state if more complex logic is needed
+      }
+    }
     else if (currentStep === 'customize') {
-        if (imageDataUrl) {
+        if (imageDataUrl) { // If there was an image, go back to describe
             setCurrentStep('describe');
-            setIsDescriptionEditable(false);
-        } else {
-            // If no image was ever uploaded (e.g. manual desc or surprise poem),
-            // going back from customize should go to upload.
-            resetState();
+            setIsDescriptionEditable(false); // AI description is not editable by default on describe screen
+        } else { // No image was ever uploaded (e.g. manual desc or surprise poem flow)
+            resetState(); // Go back to upload and clear everything
         }
     }
-    else if (currentStep === 'describe') {
-      setImageDataUrl(null);
-      setImageDescription('');
-      setCurrentStep('upload');
-      setIsDescriptionEditable(false);
+    else if (currentStep === 'describe') { // Came from upload with an image
+      resetState(); // Go back to upload and clear image/description
     }
   };
 
@@ -272,14 +283,18 @@ export default function PhotoVersePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
       <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
-         <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
+         <div className="absolute top-0 right-0 sm:top-4 sm:right-4 z-10 flex items-center gap-2 sm:gap-4">
           <ThemeToggle />
           <SignedOut>
-            <SignInButton />
-            <SignUpButton />
+            <SignInButton mode="modal">
+              <Button variant="outline" size="sm">Sign In</Button>
+            </SignInButton>
+            <SignUpButton mode="modal">
+               <Button size="sm">Sign Up</Button>
+            </SignUpButton>
           </SignedOut>
           <SignedIn>
-            <UserButton />
+            <UserButton afterSignOutUrl="/" />
           </SignedIn>
         </div>
         <div className="flex justify-center items-center gap-3 mb-2 pt-12 sm:pt-0">
@@ -315,7 +330,7 @@ export default function PhotoVersePage() {
             initialDescription={imageDescription}
             isFetchingDescription={isDescriptionLoading}
             onDescriptionConfirm={handleDescriptionConfirm}
-            onSkip={handleSkipToCustomize}
+            onSkip={handleSkipToCustomize} // Passes current description
             onFetchDescriptionRequest={handleFetchAIDescription}
           />
         )}
@@ -323,7 +338,7 @@ export default function PhotoVersePage() {
         {currentStep === 'customize' && (
           <PoemCustomizationForm
             initialDescription={imageDescription}
-            isDescriptionEditable={isDescriptionEditable || !imageDataUrl} // Editable if no image or skipped to customize
+            isDescriptionEditable={isDescriptionEditable || !imageDataUrl} 
             onDescriptionChange={setImageDescription}
             initialSettings={poemSettings}
             onSettingsChange={setPoemSettings}
@@ -338,13 +353,13 @@ export default function PhotoVersePage() {
             imageDataUrl={imageDataUrl}
             poem={generatedPoem}
             isGeneratingPoem={isPoemLoading}
-            onRegenerate={handleGeneratePoem}
+            onRegenerate={handleGeneratePoem} // Uses current imageDescription and poemSettings
             onStartOver={resetState}
           />
         )}
 
         {(isDescriptionLoading || isPoemLoading) && currentStep !== 'display' && (
-          <div className="fixed inset-0 bg-background/80 flex flex-col justify-center items-center z-50">
+          <div className="fixed inset-0 bg-background/80 flex flex-col justify-center items-center z-50 backdrop-blur-sm">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
             <p className="text-xl font-headline text-primary">
               {isDescriptionLoading
@@ -376,7 +391,7 @@ export default function PhotoVersePage() {
                   <li><strong>Review & Refine the Description (if not a "Surprise Poem"):</strong>
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                         <li><strong>AI-Generated (if image uploaded):</strong> If you provided an image, our advanced AI will analyze its content and generate a textual description.</li>
-                        <li><strong>Your Input is Key:</strong> This description is crucial as it forms the primary input for the poem generation AI. You can (and are encouraged to!) review this description, edit it for accuracy or emphasis, or even replace it entirely. The more evocative, detailed, and accurate the description, the richer and more relevant your poem will be!</li>
+                        <li><strong>Your Input is Key:</strong> This description is crucial as it forms the primary input for the poem generation AI. You can (and are encouraged to!) review this description, edit it for accuracy or emphasis, or even replace it entirely. The more evocative, detailed,and accurate the description, the richer and more relevant your poem will be!</li>
                     </ul>
                   </li>
                   <li><strong>Customize Your Poem's Voice:</strong> Tailor the poem to your liking by selecting:
@@ -400,13 +415,32 @@ export default function PhotoVersePage() {
                   <Lightbulb className="mr-3 h-5 w-5 text-accent flex-shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-foreground">Tips for Best Results:</h4>
-                    <ul className="list-disc list-inside space-y-1 mt-1">
-                      <li><strong>Image Quality (if used):</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the description.</li>
-                      <li><strong>Detailed Descriptions:</strong> Whether AI-generated, edited, or written from scratch, be specific! The more detail you provide (objects, colors, emotions, actions), the more material the AI has for the poem.</li>
-                      <li><strong>Experiment:</strong> Don't be afraid to try different combinations of languages, styles, and tones. You might be surprised by the variety of poems you can create from a single image or idea! Regenerate if you're curious.</li>
-                       <li><strong>Edit the AI's Description:</strong> The AI provides a good starting point, but your personal touch can make the resulting poem even more meaningful. Feel free to heavily edit or completely rewrite the description.</li>
-                       <li><strong>Use Custom Instructions:</strong> If you have a specific idea in mind (e.g., "include a metaphor about the sea"), use the custom instruction field.</li>
-                       <li><strong>Iterate with "Surprise Me":</strong> Use the "Surprise Me!" for settings or the initial "Surprise Me with a Poem!" for quick inspiration, then refine from there.</li>
+                    <ul className="list-disc list-inside space-y-2 mt-1">
+                      <li><strong>Image Quality (if used):</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the initial description.</li>
+                      <li><strong>Detailed Descriptions are Key:</strong> Whether AI-generated, edited, or written from scratch, be specific! The more detail you provide (objects, colors, emotions, actions, a story), the more material the AI has for crafting a rich poem.
+                        <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
+                          <li>If a poem is too abstract, try adding more concrete nouns and actions to your description.</li>
+                          <li>If the poem misses the mark emotionally, ensure your description explicitly mentions the desired feelings or atmosphere.</li>
+                        </ul>
+                      </li>
+                      <li><strong>Experiment with Settings:</strong> Don't be afraid to try different combinations of languages, styles, and tones. A "Romantic" style will interpret your description differently than a "Haiku."
+                         <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
+                           <li>If a "Free Verse" poem feels too unstructured, try a "Sonnet" or another style with more defined rules (but ensure your description is rich enough).</li>
+                           <li>If a "Short" poem feels incomplete, try "Medium" or "Long" for more development.</li>
+                         </ul>
+                      </li>
+                       <li><strong>Master the Custom Instruction:</strong> Use this field for specific requests. Examples:
+                         <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
+                           <li>"Make it rhyme" (though the AI might attempt this based on style too).</li>
+                           <li>"Focus on the theme of hope."</li>
+                           <li>"Include a metaphor about a flowing river."</li>
+                           <li>"Ensure the poem has a narrative arc."</li>
+                           <li>"Avoid using the word 'love'."</li>
+                         </ul>
+                       </li>
+                       <li><strong>Iterate, Iterate, Iterate:</strong> The first poem might not be perfect. Use the "Regenerate" button. Go back and tweak the description. Change one setting at a time to see its effect. Editing the AI's initial description is often a powerful step.</li>
+                       <li><strong>Use "Surprise Me!":</strong> Both the initial "Surprise Me with a Poem!" and the "Surprise Me!" for settings on the customization page are great for breaking creative blocks or discovering unexpected combinations.</li>
+                       <li><strong>Edit the Final Poem:</strong> Remember, the AI's output is a starting point. You have full control to edit the generated poem in the text area to make it truly yours.</li>
                     </ul>
                   </div>
                 </div>
@@ -439,7 +473,7 @@ export default function PhotoVersePage() {
                   <div>Poetry is subjective! If the first result isn't quite what you're looking for:
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                       <li>Try clicking "Regenerate Poem" with the same settings; the AI might offer a different take.</li>
-                      <li>Go back and edit the image description. Adding more detail, changing the focus, or adjusting the tone of the description can significantly impact the poem.</li>
+                      <li>Go back and edit the image description. Adding more detail, changing the focus, or adjusting the tone of the description can significantly impact the poem. Refer to our "Tips for Best Results."</li>
                       <li>Experiment with different "Poem Options" (language, style, tone, length). Use the "Surprise Me!" button on the customization page for random settings.</li>
                       <li>Use the "Custom Instruction" field to give the AI more specific guidance.</li>
                       <li>Once a poem is generated, you can directly edit it in the text area provided to perfect it.</li>
@@ -507,5 +541,4 @@ export default function PhotoVersePage() {
     </div>
   );
 }
-
     
