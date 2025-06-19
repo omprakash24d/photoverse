@@ -13,6 +13,8 @@ import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flo
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
 import { Loader2, ArrowLeft } from 'lucide-react';
+import { ThemeToggle } from '@/components/theme-toggle';
+
 
 const initialPoemSettings: PoemSettings = {
   language: 'English',
@@ -160,7 +162,10 @@ export default function PhotoVersePage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
-      <header className="w-full max-w-3xl text-center mb-8 sm:mb-12">
+      <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
+        <div className="absolute top-2 right-2 z-10">
+          <ThemeToggle />
+        </div>
         <div className="flex justify-center items-center gap-3 mb-2">
           <PhotoVerseLogo className="h-12 w-12 sm:h-16 sm:w-16" />
           <h1 className="text-4xl sm:text-5xl font-headline text-primary tracking-tight">
