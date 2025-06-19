@@ -11,14 +11,15 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import type { PoemLength } from '@/lib/types'; // Import PoemLength type
+import type { PoemLength, PoemLanguage, PoemStyle, PoemTone } from '@/lib/types'; // Import specific types
+import { LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types'; // Import arrays for enums
 
 const GeneratePoemInputSchema = z.object({
   imageDescription: z.string().describe('A description of the image or the subject of the poem.'),
-  language: z.enum(['English', 'Hindi', 'Hinglish']).describe('The language of the poem.'),
-  style: z.string().describe('The style of the poem (e.g., Haiku, Free Verse, Romantic).'),
-  tone: z.string().describe('The tone/mood of the poem (e.g., Joyful, Calm, Melancholic).'),
-  poemLength: z.enum(['Short', 'Medium', 'Long'] as [PoemLength, ...PoemLength[]]).describe('The desired length of the poem (Short, Medium, Long).'),
+  language: z.enum(LANGUAGES as [PoemLanguage, ...PoemLanguage[]]).describe('The language of the poem.'),
+  style: z.enum(STYLES as [PoemStyle, ...PoemStyle[]]).describe('The style of the poem (e.g., Haiku, Free Verse, Romantic).'),
+  tone: z.enum(TONES as [PoemTone, ...PoemTone[]]).describe('The tone/mood of the poem (e.g., Joyful, Calm, Melancholic).'),
+  poemLength: z.enum(LENGTHS as [PoemLength, ...PoemLength[]]).describe('The desired length of the poem (Short, Medium, Long).'),
   customInstruction: z.string().optional().describe('Optional custom instruction for the poem generation (e.g., focus on a specific theme, include a certain word).'),
 });
 
@@ -80,3 +81,4 @@ const generatePoemFlow = ai.defineFlow(
     return output!;
   }
 );
+
