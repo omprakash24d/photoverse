@@ -7,12 +7,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2, RefreshCcwIcon } from 'lucide-react';
-import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, LANGUAGES, STYLES, TONES } from '@/lib/types';
+import { Wand2, Loader2, RefreshCcwIcon, Shuffle } from 'lucide-react';
+import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 
 interface PoemCustomizationFormProps {
   initialDescription: string;
-  isDescriptionEditable: boolean; // True if user skipped AI description or wants to edit
+  isDescriptionEditable: boolean;
   onDescriptionChange?: (description: string) => void;
   initialSettings: PoemSettings;
   onSettingsChange: (settings: PoemSettings) => void;
@@ -39,15 +39,13 @@ export function PoemCustomizationForm({
   }, [initialDescription]);
   
   useEffect(() => {
-    // This ensures the form's local state updates if the parent's settings change
-    // (e.g., after a reset to defaults from the parent).
     setSettings(initialSettings);
   }, [initialSettings]);
 
-  const handleSettingChange = (field: keyof PoemSettings, value: string) => {
+  const handleSettingChange = (field: keyof PoemSettings, value: string | undefined) => {
     const newSettings = { ...settings, [field]: value };
-    setSettings(newSettings); // Update local state immediately for responsiveness
-    onSettingsChange(newSettings); // Propagate to parent
+    setSettings(newSettings);
+    onSettingsChange(newSettings);
   };
 
   const handleDescriptionUpdate = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -59,7 +57,7 @@ export function PoemCustomizationForm({
   
   const handleSubmit = () => {
     if(description.trim() === "") {
-      // This should ideally use the toast hook for consistency, but alert for simplicity here
+      // This should ideally use the toast hook for consistency
       alert("Please provide an image description."); 
       return;
     }
@@ -72,31 +70,48 @@ export function PoemCustomizationForm({
     }
   };
 
+  const handleSurpriseMe = () => {
+    const randomLanguage = LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)];
+    const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
+    const randomTone = TONES[Math.floor(Math.random() * TONES.length)];
+    const randomLength = LENGTHS[Math.floor(Math.random() * LENGTHS.length)];
+    
+    const newSettings: PoemSettings = {
+      ...settings, // Keep custom instruction if any
+      language: randomLanguage,
+      style: randomStyle,
+      tone: randomTone,
+      poemLength: randomLength,
+    };
+    setSettings(newSettings);
+    onSettingsChange(newSettings);
+  };
+
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
         <CardTitle className="font-headline text-2xl text-center">Customize Your Poem</CardTitle>
         <CardDescription className="text-center font-body">
-          {isDescriptionEditable ? "Describe your image, then " : "Review the description and "}
-          choose the language, style, and tone for your AI-generated poem.
+          {isDescriptionEditable ? "Describe your image or idea, then " : "Review the description and "}
+          choose the options for your AI-generated poem.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         {isDescriptionEditable && (
           <div className="space-y-2">
-            <Label htmlFor="custom-description" className="text-lg font-body">Image Description:</Label>
+            <Label htmlFor="custom-description" className="text-lg font-body">Image Description / Poem Subject:</Label>
             <Textarea
               id="custom-description"
               value={description}
               onChange={handleDescriptionUpdate}
-              placeholder="Describe the image for the poem..."
+              placeholder="Describe the image, scene, or idea for the poem..."
               rows={4}
               className="font-body text-base"
             />
           </div>
         )}
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="poem-language" className="font-body">Language</Label>
             <Select
@@ -150,19 +165,62 @@ export function PoemCustomizationForm({
               </SelectContent>
             </Select>
           </div>
+          
+          <div className="space-y-2">
+            <Label htmlFor="poem-length" className="font-body">Poem Length</Label>
+            <Select
+              value={settings.poemLength}
+              onValueChange={(value) => handleSettingChange('poemLength', value as PoemLength)}
+              disabled={isGeneratingPoem}
+            >
+              <SelectTrigger id="poem-length" className="font-body">
+                <SelectValue placeholder="Select length" />
+              </SelectTrigger>
+              <SelectContent>
+                {LENGTHS.map(length => (
+                  <SelectItem key={length} value={length} className="font-body">{length}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
+        
+        <div className="space-y-2">
+            <Label htmlFor="custom-instruction" className="font-body">Custom Instruction (Optional)</Label>
+            <Textarea
+              id="custom-instruction"
+              value={settings.customInstruction || ''}
+              onChange={(e) => handleSettingChange('customInstruction', e.target.value)}
+              placeholder="e.g., Make it rhyme, focus on the color blue, mention a specific character..."
+              rows={2}
+              className="font-body text-sm"
+              disabled={isGeneratingPoem}
+            />
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3 items-center justify-start">
+            {onResetSettingsRequest && (
+              <Button 
+                onClick={handleResetOptions} 
+                variant="outline" 
+                className="w-full sm:w-auto"
+                disabled={isGeneratingPoem}
+              >
+                <RefreshCcwIcon className="mr-2 h-4 w-4" /> Reset Options
+              </Button>
+            )}
+            <Button 
+                onClick={handleSurpriseMe} 
+                variant="outline" 
+                className="w-full sm:w-auto"
+                disabled={isGeneratingPoem}
+              >
+                <Shuffle className="mr-2 h-4 w-4" /> Surprise Me!
+              </Button>
+        </div>
+
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-3 pt-6">
-        {onResetSettingsRequest && (
-          <Button 
-            onClick={handleResetOptions} 
-            variant="outline" 
-            className="w-full sm:w-auto"
-            disabled={isGeneratingPoem}
-          >
-            <RefreshCcwIcon className="mr-2 h-4 w-4" /> Reset Options
-          </Button>
-        )}
         <Button 
             onClick={handleSubmit} 
             disabled={isGeneratingPoem || description.trim() === ""} 
@@ -180,4 +238,3 @@ export function PoemCustomizationForm({
     </Card>
   );
 }
-

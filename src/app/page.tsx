@@ -18,7 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
-import type { AppStep, PoemSettings } from '@/lib/types';
+import type { AppStep, PoemSettings, PoemLength } from '@/lib/types'; // Import PoemLength
 import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
@@ -33,6 +33,8 @@ const defaultPoemSettings: PoemSettings = {
   language: 'English',
   style: 'Free Verse',
   tone: 'Reflective',
+  poemLength: 'Medium', // Default length
+  customInstruction: '', // Default empty custom instruction
 };
 
 const fileToDataUri = (file: File): Promise<string> => {
@@ -136,7 +138,7 @@ export default function PhotoVersePage() {
     if (imageDataUrl) { 
         setImageDescription(currentDesc || "A beautiful scene"); 
     } else { 
-        setImageDescription(currentDesc); 
+        setImageDescription(currentDesc || "A creative thought"); 
     }
     setCurrentStep('customize');
     setIsDescriptionEditable(true); 
@@ -145,7 +147,7 @@ export default function PhotoVersePage() {
 
   const handleGeneratePoem = useCallback(async () => {
     if (!imageDescription.trim()) {
-      toast({ variant: "destructive", title: "Missing Description", description: "Please provide an image description." });
+      toast({ variant: "destructive", title: "Missing Description", description: "Please provide an image description or subject for the poem." });
       return;
     }
     setIsPoemLoading(true);
@@ -156,6 +158,8 @@ export default function PhotoVersePage() {
         language: poemSettings.language,
         style: poemSettings.style,
         tone: poemSettings.tone,
+        poemLength: poemSettings.poemLength,
+        customInstruction: poemSettings.customInstruction || '', // Ensure it's a string
       };
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
@@ -292,7 +296,7 @@ export default function PhotoVersePage() {
               {isDescriptionLoading
                 ? "Analyzing your masterpiece..."
                 : isPoemLoading
-                  ? `Weaving your ${poemSettings.style.toLowerCase()} poem in ${poemSettings.language}...`
+                  ? `Weaving your ${poemSettings.poemLength.toLowerCase()} ${poemSettings.style.toLowerCase()} poem in ${poemSettings.language}...`
                   : "Processing..."
               }
             </p>
@@ -323,13 +327,16 @@ export default function PhotoVersePage() {
                   <li><strong>Customize Your Poem's Voice:</strong> Tailor the poem to your liking by selecting:
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                         <li><strong>Language:</strong> Choose from English, Hindi, or Hinglish.</li>
-                        <li><strong>Poetic Style:</strong> Select a style like Haiku, Free Verse, Romantic, Motivational, Sonnet, or Limerick. Each style has its own structural and thematic conventions.</li>
-                        <li><strong>Tone/Mood:</strong> Set the emotional feel of the poem, such as Joyful, Calm, Melancholic, Nostalgic, Reflective, Humorous, or Inspired.</li>
+                        <li><strong>Poetic Style:</strong> Select a style like Haiku, Free Verse, Romantic, etc. Each style has its own structural and thematic conventions.</li>
+                        <li><strong>Tone/Mood:</strong> Set the emotional feel of the poem, such as Joyful, Calm, Melancholic, etc.</li>
+                        <li><strong>Poem Length:</strong> Indicate whether you'd prefer a Short, Medium, or Long poem.</li>
+                        <li><strong>Custom Instruction (Optional):</strong> Add a specific note for the AI, like "make it rhyme" or "focus on nature."</li>
                     </ul>
                   </li>
                   <li><strong>Generate & Iterate:</strong> Once you're happy with the description and settings, click "Generate Poem." Our AI will then craft a unique piece of poetry based on your inputs.
                     <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
-                        <li><strong>Not quite right?</strong> Don't hesitate to regenerate the poem! You can also go back, tweak the description, or change the language, style, or tone settings and try again. Experimentation often leads to the most delightful results.</li>
+                        <li><strong>Not quite right?</strong> Don't hesitate to regenerate the poem! You can also go back, tweak the description, or change any of the settings and try again. Experimentation often leads to the most delightful results. Use the "Surprise Me!" button for a random combination of settings!</li>
+                        <li><strong>Edit the Result:</strong> Once generated, you can directly edit the poem before copying or downloading.</li>
                     </ul>
                   </li>
                 </ol>
@@ -342,6 +349,7 @@ export default function PhotoVersePage() {
                       <li><strong>Detailed Descriptions:</strong> Whether AI-generated, edited, or written from scratch, be specific! The more detail you provide (objects, colors, emotions, actions), the more material the AI has for the poem.</li>
                       <li><strong>Experiment:</strong> Don't be afraid to try different combinations of languages, styles, and tones. You might be surprised by the variety of poems you can create from a single image or idea! Regenerate if you're curious.</li>
                        <li><strong>Edit the AI's Description:</strong> The AI provides a good starting point, but your personal touch can make the resulting poem even more meaningful. Feel free to heavily edit or completely rewrite the description.</li>
+                       <li><strong>Use Custom Instructions:</strong> If you have a specific idea in mind (e.g., "include a metaphor about the sea"), use the custom instruction field.</li>
                     </ul>
                   </div>
                 </div>
@@ -372,11 +380,11 @@ export default function PhotoVersePage() {
                 <p>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</p>
                 <ul className="list-disc list-inside space-y-2 pl-4">
                   <li><strong>Image Handling (if uploaded):</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends.</li>
-                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you unless you choose to save it via an account feature (if available and you are logged in). Currently, poems are not saved to user accounts automatically.</li>
-                  <li><strong>User Accounts (if you sign in):</strong> If you create an account or sign in (e.g., via Google), we will store your basic profile information provided by the authentication provider (like name, email, profile picture) to identify you. Any poems or settings you explicitly choose to save to your account (a feature planned for the future) will be stored in our secure database, associated with your account. At present, logging in provides a personalized experience but does not automatically save your creations.</li>
+                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone, length, custom instructions) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you unless you choose to save it via an account feature (if available and you are logged in). Currently, poems are not saved to user accounts automatically.</li>
+                  <li><strong>User Accounts (if you sign in):</strong> If you create an account or sign in (e.g., via Google or other Clerk-supported methods), we will store your basic profile information provided by the authentication provider (like name, email, profile picture) to identify you. Any poems or settings you explicitly choose to save to your account (a feature planned for the future) will be stored in our secure database, associated with your account. At present, logging in provides a personalized experience but does not automatically save your creations.</li>
                   <li><strong>No Personal Data Collection (Beyond Input & Account):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) beyond what's necessary for account functioning and the inputs you provide for poem generation. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information if you have privacy concerns.</li>
                   <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data, text inputs, and account information are protected during transit.</li>
-                  <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Google) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
+                  <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Clerk) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
                   <li><strong>Ephemeral Creative Sessions (for guests):</strong> Think of your time on PhotoVerse as a creative session. If you are not logged in, once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
                 </ul>
                 <p className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</p>
