@@ -58,7 +58,7 @@ export function ImageDescriptionForm({
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border border-muted shadow-inner relative">
-          <Image src={imageDataUrl} alt="User uploaded image" layout="fill" objectFit="contain" data-ai-hint="user image" />
+          <Image src={imageDataUrl} alt="User uploaded image for AI description" layout="fill" objectFit="contain" data-ai-hint="user image" />
         </div>
 
         <div>

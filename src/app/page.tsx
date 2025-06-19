@@ -19,7 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings, PoemLength } from '@/lib/types'; 
-import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles, HelpCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
 
 import {
@@ -215,6 +215,13 @@ export default function PhotoVersePage() {
       The Creative Spark: Why PhotoVerse?
     </div>
   );
+  
+  const faqTitle = (
+    <div className="flex items-center">
+      <HelpCircle className="mr-3 h-5 w-5 text-primary" />
+      Frequently Asked Questions
+    </div>
+  );
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
@@ -356,6 +363,46 @@ export default function PhotoVersePage() {
               </AccordionContent>
             </AccordionItem>
 
+            <AccordionItem value="faq">
+              <AccordionTrigger className="text-lg font-headline hover:no-underline focus:no-underline">
+                {faqTitle}
+              </AccordionTrigger>
+              <AccordionContent className="text-base text-muted-foreground space-y-4 p-2">
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">What kind of images work best?</h4>
+                  <p>Clear, well-focused images with distinct subjects or moods tend to yield the most evocative descriptions and poems. High-contrast images or those with interesting compositions can also inspire more creative AI output.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">Can I use PhotoVerse without an image?</h4>
+                  <p>Absolutely! If you don't have an image or prefer to start with an idea, simply choose the "Write Description Manually" option on the first step. You can then type or paste any text to serve as the inspiration for your poem.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">How is the AI image description generated?</h4>
+                  <p>When you upload an image, PhotoVerse uses an advanced AI vision model to analyze its content, identifying objects, scenes, colors, and potential emotions or themes. This analysis is then translated into a textual description.</p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">What if I don't like the generated poem?</h4>
+                  <p>Poetry is subjective! If the first result isn't quite what you're looking for:
+                    <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
+                      <li>Try clicking "Regenerate Poem" with the same settings; the AI might offer a different take.</li>
+                      <li>Go back and edit the image description. Adding more detail, changing the focus, or adjusting the tone of the description can significantly impact the poem.</li>
+                      <li>Experiment with different "Poem Options" (language, style, tone, length).</li>
+                      <li>Use the "Custom Instruction" field to give the AI more specific guidance.</li>
+                      <li>Once a poem is generated, you can directly edit it in the text area provided to perfect it.</li>
+                    </ul>
+                  </p>
+                </div>
+                <div>
+                  <h4 className="font-semibold text-foreground mb-1">Are my images and poems stored?</h4>
+                  <p>Please refer to our "Your Data, Your Privacy" section for details. Generally, for guest users, images are processed for description and then discarded from our active servers. Poems are generated based on your input and are not stored permanently unless you are signed in and a future "save" feature is used explicitly. Your privacy is important to us.</p>
+                </div>
+                 <div>
+                  <h4 className="font-semibold text-foreground mb-1">What languages, styles, and tones are available?</h4>
+                  <p>PhotoVerse offers a variety of options! You can select different languages (e.g., English, Hindi, Hinglish), poetic styles (e.g., Haiku, Free Verse, Sonnet, Romantic), tones (e.g., Joyful, Melancholic, Reflective), and poem lengths (Short, Medium, Long). Explore the dropdown menus in the "Customize Your Poem" step to see all available choices.</p>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+
             <AccordionItem value="creative-spark">
               <AccordionTrigger className="text-lg font-headline hover:no-underline focus:no-underline">
                 {creativeSparkTitle}
@@ -405,7 +452,7 @@ export default function PhotoVersePage() {
     </div>
   );
 }
-
     
 
     
+
