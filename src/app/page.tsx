@@ -82,11 +82,11 @@ export default function PhotoVersePage() {
       setImageDescription(result.description);
     } catch (error) {
       console.error("Error describing image:", error);
-      setImageDescription(""); 
+      setImageDescription("Could not generate AI description. Please write one manually or try again."); 
       toast({
         variant: "destructive",
         title: "AI Description Failed",
-        description: "Could not generate an AI description. Please write one manually.",
+        description: "Could not generate an AI description. Please write one manually or try regenerating.",
       });
     } finally {
       setIsDescriptionLoading(false);
@@ -95,7 +95,10 @@ export default function PhotoVersePage() {
   }, [toast]);
   
   const handleFetchAIDescription = useCallback(async () => {
-    if (!imageDataUrl) return;
+    if (!imageDataUrl) {
+        toast({ variant: "destructive", title: "No Image", description: "No image available to describe."});
+        return;
+    }
     setIsDescriptionLoading(true);
     try {
       const describeInput: DescribeImageInput = { photoDataUri: imageDataUrl };
@@ -121,11 +124,17 @@ export default function PhotoVersePage() {
     setIsDescriptionEditable(false); 
   }, []);
 
-  const handleSkipDescription = useCallback((currentDesc: string) => {
-    setImageDescription(currentDesc); 
+  const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
+    // Called when user skips AI description after image upload OR skips image upload entirely
+    if (imageDataUrl) { // User uploaded an image but wants to write/edit description
+        setImageDescription(currentDesc || "A beautiful scene"); // Use provided or default
+    } else { // User skipped image upload
+        setImageDescription(currentDesc); // Use empty or provided description
+    }
     setCurrentStep('customize');
     setIsDescriptionEditable(true); 
-  }, []);
+  }, [imageDataUrl]);
+
 
   const handleGeneratePoem = useCallback(async () => {
     if (!imageDescription.trim()) {
@@ -154,14 +163,24 @@ export default function PhotoVersePage() {
 
   const handleBack = () => {
     if (currentStep === 'display') setCurrentStep('customize');
-    else if (currentStep === 'customize') setCurrentStep('describe');
+    else if (currentStep === 'customize') {
+        // If there was an image, go back to describe step. Otherwise, to upload.
+        if (imageDataUrl) {
+            setCurrentStep('describe');
+            setIsDescriptionEditable(false); // Reset editability
+        } else {
+            resetState(); // Go all the way back to upload if no image
+        }
+    }
     else if (currentStep === 'describe') {
-      setImageDataUrl(null);
+      // From describe, always go back to upload and clear image related states
+      setImageDataUrl(null); 
       setImageDescription('');
       setCurrentStep('upload');
+      setIsDescriptionEditable(false);
     }
   };
-
+  
   const howItWorksTitle = (
     <div className="flex items-center">
       <Info className="mr-3 h-5 w-5 text-primary" />
@@ -189,7 +208,7 @@ export default function PhotoVersePage() {
           </h1>
         </div>
         <p className="text-base sm:text-lg text-muted-foreground">
-          Transform your photos into emotionally resonant, AI-generated poems.
+          Transform your photos (or just your words!) into emotionally resonant, AI-generated poems.
         </p>
       </header>
 
@@ -201,7 +220,11 @@ export default function PhotoVersePage() {
         )}
 
         {currentStep === 'upload' && (
-          <PhotoUpload onImageSelected={handleImageSelected} isLoading={isDescriptionLoading} />
+          <PhotoUpload 
+            onImageSelected={handleImageSelected} 
+            isLoading={isDescriptionLoading}
+            onSkipToDescription={() => handleSkipToCustomize("")} // Pass empty string for description
+          />
         )}
 
         {currentStep === 'describe' && imageDataUrl && (
@@ -210,7 +233,7 @@ export default function PhotoVersePage() {
             initialDescription={imageDescription}
             isFetchingDescription={isDescriptionLoading}
             onDescriptionConfirm={handleDescriptionConfirm}
-            onSkip={handleSkipDescription}
+            onSkip={handleSkipToCustomize} // Pass current description
             onFetchDescriptionRequest={handleFetchAIDescription}
           />
         )}
@@ -253,20 +276,25 @@ export default function PhotoVersePage() {
                 {howItWorksTitle}
               </AccordionTrigger>
               <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
-                <p>PhotoVerse transforms your images into poetry through a simple three-step AI-powered process:</p>
+                <p>PhotoVerse transforms your images or ideas into poetry through a simple AI-powered process:</p>
                 <ol className="list-decimal list-inside space-y-2 pl-4">
-                  <li><strong>Upload Your Image:</strong> Start by uploading a photo from your device or capture one using your webcam. Clear, well-focused images generally lead to more detailed and relevant AI descriptions.</li>
-                  <li><strong>AI Describes Your Image:</strong> Our advanced AI analyzes your uploaded image and generates a textual description. You have the opportunity to review this description, edit it to better match your vision, or even write your own from scratch if you prefer. The more evocative and accurate the description, the richer and more personalized your poem will be!</li>
-                  <li><strong>Customize & Generate Poem:</strong> Choose your desired language (English, Hindi, or Hinglish), select a poetic style (like Haiku, Free Verse, Romantic, etc.), and set the tone (e.g., Joyful, Reflective, Humorous). Once you're ready, click "Generate Poem" and watch as PhotoVerse crafts a unique piece of poetry inspired by your image and preferences.</li>
+                  <li><strong>Provide Your Inspiration:</strong>
+                    <ul className="list-disc list-inside pl-4 mt-1">
+                        <li><strong>Upload Your Image:</strong> Start by uploading a photo from your device or capture one using your webcam. Clear, well-focused images generally lead to more detailed AI descriptions.</li>
+                        <li><strong>Or, Just Use Words:</strong> Prefer to skip the image? No problem! You can directly write or paste a description of a scene, emotion, or idea you want the poem to be about.</li>
+                    </ul>
+                  </li>
+                  <li><strong>AI Describes Your Image (if uploaded):</strong> If you provide an image, our AI analyzes it and generates a textual description. You can review this description, edit it, or replace it entirely. If you skipped the image, you'll directly provide your own description here. The more evocative and accurate the description, the richer your poem will be!</li>
+                  <li><strong>Customize & Generate Poem:</strong> Choose your desired language (English, Hindi, or Hinglish), select a poetic style (like Haiku, Free Verse, Romantic, etc.), and set the tone (e.g., Joyful, Reflective, Humorous). Once ready, click "Generate Poem" and watch as PhotoVerse crafts a unique piece of poetry.</li>
                 </ol>
                 <div className="flex items-start mt-3 p-3 bg-accent/10 rounded-md">
                   <Lightbulb className="mr-3 h-5 w-5 text-accent flex-shrink-0 mt-1" />
                   <div>
                     <h4 className="font-semibold text-foreground">Tips for Best Results:</h4>
                     <ul className="list-disc list-inside space-y-1 mt-1">
-                      <li><strong>Image Quality:</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the description.</li>
-                      <li><strong>Detailed Descriptions:</strong> If you edit or write your own description, be specific! The more detail you provide, the more material the AI has to work with for the poem.</li>
-                      <li><strong>Experiment:</strong> Don't be afraid to try different combinations of languages, styles, and tones. You might be surprised by the variety of poems you can create from a single image!</li>
+                      <li><strong>Image Quality (if used):</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the description.</li>
+                      <li><strong>Detailed Descriptions:</strong> Whether AI-generated, edited, or written from scratch, be specific! The more detail you provide (objects, colors, emotions, actions), the more material the AI has for the poem.</li>
+                      <li><strong>Experiment:</strong> Don't be afraid to try different combinations of languages, styles, and tones. You might be surprised by the variety of poems you can create from a single image or idea! Regenerate if you're curious.</li>
                     </ul>
                   </div>
                 </div>
@@ -280,11 +308,11 @@ export default function PhotoVersePage() {
               <AccordionContent className="text-base text-muted-foreground space-y-3 p-2">
                 <p>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</p>
                 <ul className="list-disc list-inside space-y-2 pl-4">
-                  <li><strong>Image Handling:</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends. We only use it to create the initial description for your poem.</li>
-                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you.</li>
-                  <li><strong>No Personal Data Collection (Beyond Image Content):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) such as your name, email address, or location. You are responsible for the content of the images you choose to upload; please be mindful and avoid uploading images that contain sensitive personal information if you have privacy concerns.</li>
-                  <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data and poem preferences are protected during transit.</li>
-                  <li><strong>No Third-Party Sharing (Beyond Essential AI Services):</strong> Your images and text are only shared with the specific AI models required for generating image descriptions and poems. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
+                  <li><strong>Image Handling (if uploaded):</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends.</li>
+                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you.</li>
+                  <li><strong>No Personal Data Collection (Beyond Input):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) such as your name, email address, or location. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information if you have privacy concerns.</li>
+                  <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data and text inputs are protected during transit.</li>
+                  <li><strong>No Third-Party Sharing (Beyond Essential AI Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
                   <li><strong>Ephemeral Creative Sessions:</strong> Think of your time on PhotoVerse as a creative session. Once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application in a way that is tied to you.</li>
                 </ul>
                 <p className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</p>
@@ -299,11 +327,9 @@ export default function PhotoVersePage() {
           Developed with <span className="text-accent">&hearts;</span> by Om Prakash.
         </p>
          <p className="text-xs text-muted-foreground/80 font-body mt-1">
-          PhotoVerse: An AI-powered tool to transform images into poetry.
+          PhotoVerse: An AI-powered tool to transform images and ideas into poetry.
         </p>
       </footer>
     </div>
   );
 }
-
-    

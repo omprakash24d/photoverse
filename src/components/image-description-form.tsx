@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -10,12 +11,12 @@ import { Loader2, Check, SkipForward, RefreshCw } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 interface ImageDescriptionFormProps {
-  imageDataUrl: string;
+  imageDataUrl: string; // Should always be present if this form is shown
   initialDescription: string;
   isFetchingDescription: boolean;
   onDescriptionConfirm: (description: string) => void;
-  onSkip: (currentDescription: string) => void;
-  onFetchDescriptionRequest?: () => void; // Optional: if user wants to re-trigger AI description
+  onSkip: (currentDescription: string) => void; // User wants to skip AI and customize poem settings (possibly editing this desc)
+  onFetchDescriptionRequest?: () => void; 
 }
 
 export function ImageDescriptionForm({
@@ -29,15 +30,21 @@ export function ImageDescriptionForm({
   const [description, setDescription] = useState(initialDescription);
 
   useEffect(() => {
-    setDescription(initialDescription);
-  }, [initialDescription]);
+    // Update local description if initialDescription changes (e.g., after AI fetch)
+    // but only if not currently fetching, to avoid overwriting user edits during a fetch.
+    if (!isFetchingDescription) {
+      setDescription(initialDescription);
+    }
+  }, [initialDescription, isFetchingDescription]);
 
   const handleConfirm = () => {
-    onDescriptionConfirm(description.trim() === "" ? "A beautiful scene" : description);
+    // Use a default if description is empty, otherwise use trimmed description
+    onDescriptionConfirm(description.trim() === "" ? "A beautiful scene" : description.trim());
   };
   
   const handleSkip = () => {
-    onSkip(description); // Pass current description even if skipping AI
+    // Pass the current state of the description, even if it's the AI one or edited by user
+    onSkip(description.trim()); 
   };
 
   return (
@@ -45,17 +52,18 @@ export function ImageDescriptionForm({
       <CardHeader>
         <CardTitle className="font-headline text-2xl text-center">Describe Your Image</CardTitle>
         <CardDescription className="text-center font-body">
-          Our AI has tried to describe your image. Review or edit it below, or skip to write your own.
+          Our AI has described your image. Review or edit it below.
+          You can also skip this and write your own in the next step.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border border-muted shadow-inner relative">
-          <Image src={imageDataUrl} alt="User uploaded image" layout="fill" objectFit="contain" data-ai-hint="abstract photography" />
+          <Image src={imageDataUrl} alt="User uploaded image" layout="fill" objectFit="contain" data-ai-hint="user image" />
         </div>
 
         <div>
           <Label htmlFor="image-description" className="text-lg font-body mb-2 block">
-            Image Description:
+            AI Generated Description (Editable):
           </Label>
           {isFetchingDescription ? (
             <div className="space-y-2">
@@ -71,18 +79,27 @@ export function ImageDescriptionForm({
               placeholder="e.g., A serene beach at sunset with golden sands and gentle waves..."
               rows={5}
               className="font-body text-base"
+              aria-describedby="description-help"
             />
           )}
+          <p id="description-help" className="text-xs text-muted-foreground mt-1">
+            Feel free to refine this description or accept it as is.
+          </p>
         </div>
-        {onFetchDescriptionRequest && !isFetchingDescription && (
-             <Button onClick={onFetchDescriptionRequest} variant="outline" className="w-full sm:w-auto" disabled={isFetchingDescription}>
+        {onFetchDescriptionRequest && (
+             <Button 
+                onClick={onFetchDescriptionRequest} 
+                variant="outline" 
+                className="w-full sm:w-auto" 
+                disabled={isFetchingDescription}
+             >
                 <RefreshCw className={`mr-2 h-4 w-4 ${isFetchingDescription ? 'animate-spin' : ''}`} />
-                {isFetchingDescription ? ' Regenerating...' : 'Regenerate AI Description'}
+                {isFetchingDescription ? 'Regenerating...' : 'Regenerate AI Description'}
             </Button>
         )}
       </CardContent>
       <CardFooter className="flex flex-col sm:flex-row justify-center gap-4">
-        <Button onClick={handleConfirm} className="w-full sm:w-auto" disabled={isFetchingDescription}>
+        <Button onClick={handleConfirm} className="w-full sm:w-auto" disabled={isFetchingDescription || description.trim() === ""}>
           <Check className="mr-2 h-4 w-4" /> Use this Description
         </Button>
         <Button onClick={handleSkip} variant="secondary" className="w-full sm:w-auto" disabled={isFetchingDescription}>

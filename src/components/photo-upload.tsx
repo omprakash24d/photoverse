@@ -1,19 +1,21 @@
+
 "use client";
 
 import React, { useState, useCallback } from 'react';
 import { useDropzone } from 'react-dropzone';
-import { UploadCloud, Camera, Image as ImageIcon, XCircle } from 'lucide-react';
+import { UploadCloud, Camera, Image as ImageIcon, XCircle, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { WebcamCaptureModal } from './webcam-capture-modal';
 
 interface PhotoUploadProps {
   onImageSelected: (file: File | string) => void; // File for upload, string (dataURL) for webcam
   isLoading?: boolean;
+  onSkipToDescription: () => void; // New prop to handle skipping image upload
 }
 
-export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadProps) {
+export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescription }: PhotoUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
@@ -27,7 +29,7 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
         setPreview(reader.result as string);
       };
       reader.readAsDataURL(file);
-      onImageSelected(file);
+      onImageSelected(file); // This will trigger AI description
     }
   }, [onImageSelected]);
 
@@ -35,12 +37,14 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
     onDrop,
     accept: { 'image/*': ['.jpeg', '.png', '.gif', '.webp'] },
     multiple: false,
+    disabled: isLoading, // Disable dropzone when loading
   });
 
   const handleClearPreview = () => {
     setPreview(null);
     setFileName(null);
-    // Potentially notify parent if an image was "deselected"
+    // Parent is already aware via onImageSelected or lack thereof.
+    // If an image was selected and is now cleared, the user effectively starts over or can select a new one.
   };
 
   const handleWebcamCapture = (dataUrl: string) => {
@@ -53,13 +57,13 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
   return (
     <Card className="w-full shadow-lg">
       <CardHeader>
-        <CardTitle className="font-headline text-2xl text-center">Upload Your Photo</CardTitle>
+        <CardTitle className="font-headline text-2xl text-center">Start Your Poem</CardTitle>
         <CardDescription className="text-center font-body">
-          Drag & drop, click to select, or use your webcam.
+          Upload a photo, use your webcam, or start with just a description.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {preview ? (
+        {preview && !isLoading ? ( // Only show preview if not loading (avoids flicker if loading starts immediately)
           <div className="relative group aspect-video w-full max-w-md mx-auto rounded-lg overflow-hidden border-2 border-dashed border-primary/50">
             <Image src={preview} alt={fileName || "Preview"} layout="fill" objectFit="contain" />
             <Button
@@ -68,6 +72,7 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
               className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity z-10"
               onClick={handleClearPreview}
               aria-label="Remove image"
+              disabled={isLoading}
             >
               <XCircle className="h-5 w-5" />
             </Button>
@@ -79,7 +84,8 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
           <div
             {...getRootProps()}
             className={`p-8 border-2 border-dashed rounded-lg text-center cursor-pointer transition-colors
-              ${isDragActive ? 'border-accent bg-accent/10' : 'border-primary/30 hover:border-accent'}`}
+              ${isLoading ? 'cursor-not-allowed opacity-70 bg-muted/30' : 
+                isDragActive ? 'border-accent bg-accent/10' : 'border-primary/30 hover:border-accent'}`}
           >
             <input {...getInputProps()} />
             <UploadCloud className="mx-auto h-16 w-16 text-primary/70 mb-4" />
@@ -102,8 +108,18 @@ export function PhotoUpload({ onImageSelected, isLoading = false }: PhotoUploadP
             <Camera className="mr-2 h-4 w-4" /> Use Webcam
           </Button>
         </div>
-        {isLoading && <p className="text-center text-primary font-body">Processing image...</p>}
+        {isLoading && <p className="text-center text-primary font-body">Processing image, please wait...</p>}
       </CardContent>
+      <CardFooter className="flex-col items-center justify-center pt-0 pb-6">
+         <div className="relative flex py-3 items-center w-4/5 sm:w-2/3 mx-auto">
+            <div className="flex-grow border-t border-muted-foreground/30"></div>
+            <span className="flex-shrink mx-4 text-xs text-muted-foreground">OR</span>
+            <div className="flex-grow border-t border-muted-foreground/30"></div>
+        </div>
+        <Button onClick={onSkipToDescription} variant="secondary" className="w-full sm:w-auto" disabled={isLoading}>
+            <Edit3 className="mr-2 h-4 w-4" /> Write Description Manually
+        </Button>
+      </CardFooter>
       <WebcamCaptureModal
         isOpen={isWebcamModalOpen}
         onClose={() => setIsWebcamModalOpen(false)}
