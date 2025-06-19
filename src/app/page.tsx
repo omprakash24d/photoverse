@@ -12,23 +12,25 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
-import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, LogIn, LogOut, UserCircle, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react'; // LogIn, LogOut, UserCircle removed
 import { ThemeToggle } from '@/components/theme-toggle';
-import { useAuth } from '@/context/auth-context'; // Import useAuth
+// import { useAuth } from '@/context/auth-context'; // Firebase useAuth removed
+
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+// DropdownMenu components for user removed as Clerk handles this in layout
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuItem,
+//   DropdownMenuLabel,
+//   DropdownMenuSeparator,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu"
 
 const defaultPoemSettings: PoemSettings = {
   language: 'English',
@@ -57,7 +59,7 @@ export default function PhotoVersePage() {
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
 
   const { toast } = useToast();
-  const { user, loading: authLoading, loginWithGoogle, logout } = useAuth(); // Use auth context
+  // const { user, loading: authLoading, loginWithGoogle, logout } = useAuth(); // Firebase useAuth removed
 
   const resetState = useCallback(() => {
     setCurrentStep('upload');
@@ -217,40 +219,10 @@ export default function PhotoVersePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
       <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
-        <div className="absolute top-2 right-2 z-10 flex items-center space-x-2">
+        {/* ThemeToggle and Auth buttons moved to global layout */}
+         <div className="absolute top-2 right-2 z-10">
           <ThemeToggle />
-          {authLoading ? (
-            <Button variant="outline" size="icon" disabled className="rounded-full">
-              <Loader2 className="h-5 w-5 animate-spin" />
-            </Button>
-          ) : user ? (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="rounded-full">
-                  {user.photoURL ? (
-                    <img src={user.photoURL} alt={user.displayName || "User"} className="h-6 w-6 rounded-full" />
-                  ) : (
-                    <UserCircle className="h-5 w-5" />
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                {/* <DropdownMenuItem>Profile (Coming Soon)</DropdownMenuItem>
-                <DropdownMenuItem>My Poems (Coming Soon)</DropdownMenuItem>
-                <DropdownMenuSeparator /> */}
-                <DropdownMenuItem onClick={logout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  Logout
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          ) : (
-            <Button variant="outline" onClick={loginWithGoogle}>
-              <LogIn className="mr-2 h-4 w-4" /> Login
-            </Button>
-          )}
+          {/* Firebase Auth UI removed, Clerk handles this in RootLayout's <header> */}
         </div>
         <div className="flex justify-center items-center gap-3 mb-2 pt-12 sm:pt-0">
           <PhotoVerseLogo className="h-12 w-12 sm:h-16 sm:w-16" />
@@ -309,7 +281,7 @@ export default function PhotoVersePage() {
             isGeneratingPoem={isPoemLoading}
             onRegenerate={handleGeneratePoem}
             onStartOver={resetState}
-            // showSaveButton={!!user} // Example: Only show save if user is logged in
+            // showSaveButton feature would depend on the new auth system if implemented
           />
         )}
         

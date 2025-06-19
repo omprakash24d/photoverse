@@ -1,59 +1,36 @@
-
 // src/context/auth-context.tsx
 "use client";
 
-import type { User } from "firebase/auth";
-import { signInWithPopup, signOut, onAuthStateChanged } from "firebase/auth";
-import React, { createContext, useContext, useEffect, useState } from "react";
-import { auth, googleProvider } from "@/lib/firebase";
+import React, { createContext, useContext, useState } from "react";
 import { useToast } from "@/hooks/use-toast";
 
+// Minimal User type if Firebase is removed
+type MinimalUser = {
+  displayName?: string | null;
+  email?: string | null;
+  photoURL?: string | null;
+} | null;
+
 interface AuthContextType {
-  user: User | null;
+  user: MinimalUser;
   loading: boolean;
-  loginWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
+  loginWithGoogle: () => Promise<void>; // Will be no-op
+  logout: () => Promise<void>; // Will be no-op
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<MinimalUser>(null);
+  const [loading, setLoading] = useState(false); // Default to false as no auth op
   const { toast } = useToast();
 
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [toast]);
-
   const loginWithGoogle = async () => {
-    setLoading(true);
-    try {
-      await signInWithPopup(auth, googleProvider);
-      toast({ title: "Signed In", description: "Successfully signed in with Google." });
-    } catch (error: any) {
-      console.error("Error signing in with Google:", error);
-      toast({ variant: "destructive", title: "Sign In Failed", description: error.message || "Could not sign in with Google." });
-    } finally {
-      setLoading(false);
-    }
+    toast({ variant: "destructive", title: "Login Not Available", description: "Firebase authentication has been removed. Please use the site's primary login method." });
   };
 
   const logout = async () => {
-    setLoading(true);
-    try {
-      await signOut(auth);
-      toast({ title: "Signed Out", description: "Successfully signed out." });
-    } catch (error: any) {
-      console.error("Error signing out:", error);
-      toast({ variant: "destructive", title: "Sign Out Failed", description: error.message || "Could not sign out." });
-    } finally {
-      setLoading(false);
-    }
+    toast({ variant: "destructive", title: "Logout Not Available", description: "Firebase authentication has been removed. Please use the site's primary logout method." });
   };
 
   return (

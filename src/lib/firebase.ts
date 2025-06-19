@@ -1,6 +1,5 @@
 // src/lib/firebase.ts
 import { initializeApp, getApp, getApps } from "firebase/app";
-import { getAuth, GoogleAuthProvider } from "firebase/auth";
 // import { getFirestore } from "firebase/firestore"; // For later use with saved poems
 
 // Your web app's Firebase configuration
@@ -17,9 +16,6 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const auth = getAuth(app);
 // const db = getFirestore(app); // For later use
 
-const googleProvider = new GoogleAuthProvider();
-
-export { app, auth, googleProvider /*, db */ };
+export { app /*, db */ };
