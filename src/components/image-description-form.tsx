@@ -93,7 +93,11 @@ export function ImageDescriptionForm({
                 className="w-full sm:w-auto" 
                 disabled={isFetchingDescription}
              >
-                <RefreshCw className={`mr-2 h-4 w-4 ${isFetchingDescription ? 'animate-spin' : ''}`} />
+                {isFetchingDescription ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <RefreshCw className="mr-2 h-4 w-4" />
+                )}
                 {isFetchingDescription ? 'Regenerating...' : 'Regenerate AI Description'}
             </Button>
         )}

@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Wand2, Loader2, RefreshCcwIcon, Shuffle, Sparkles } from 'lucide-react'; // Added Sparkles
+import { Wand2, Loader2, RefreshCcwIcon, Shuffle, Sparkles } from 'lucide-react';
 import { PoemSettings, PoemLanguage, PoemStyle, PoemTone, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
 
@@ -83,13 +83,11 @@ export function PoemCustomizationForm({
     const randomLength = LENGTHS[Math.floor(Math.random() * LENGTHS.length)];
     
     const newSettings: PoemSettings = {
-      ...settings, 
+      ...settings, // Preserve custom instruction and poetic devices if they exist
       language: randomLanguage,
       style: randomStyle,
       tone: randomTone,
       poemLength: randomLength,
-      // customInstruction: "", // Optionally reset custom instruction
-      // poeticDevices: "", // Optionally reset poetic devices
     };
     setSettings(newSettings);
     onSettingsChange(newSettings);
@@ -212,7 +210,7 @@ export function PoemCustomizationForm({
 
         <div className="space-y-2">
             <Label htmlFor="poetic-devices" className="font-body flex items-center">
-              <Sparkles className="mr-2 h-4 w-4 text-primary" /> {/* Icon for poetic devices */}
+              <Sparkles className="mr-2 h-4 w-4 text-primary" />
               Poetic Devices (Optional)
             </Label>
             <Textarea
