@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useCallback } from 'react';
@@ -12,14 +11,23 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
-import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb } from 'lucide-react';
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, LogIn, LogOut, UserCircle } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useAuth } from '@/context/auth-context'; // Import useAuth
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const initialPoemSettings: PoemSettings = {
   language: 'English',
@@ -48,6 +56,7 @@ export default function PhotoVersePage() {
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
 
   const { toast } = useToast();
+  const { user, loading: authLoading, loginWithGoogle, logout } = useAuth(); // Use auth context
 
   const resetState = useCallback(() => {
     setCurrentStep('upload');
@@ -125,11 +134,10 @@ export default function PhotoVersePage() {
   }, []);
 
   const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
-    // Called when user skips AI description after image upload OR skips image upload entirely
-    if (imageDataUrl) { // User uploaded an image but wants to write/edit description
-        setImageDescription(currentDesc || "A beautiful scene"); // Use provided or default
-    } else { // User skipped image upload
-        setImageDescription(currentDesc); // Use empty or provided description
+    if (imageDataUrl) { 
+        setImageDescription(currentDesc || "A beautiful scene"); 
+    } else { 
+        setImageDescription(currentDesc); 
     }
     setCurrentStep('customize');
     setIsDescriptionEditable(true); 
@@ -164,16 +172,14 @@ export default function PhotoVersePage() {
   const handleBack = () => {
     if (currentStep === 'display') setCurrentStep('customize');
     else if (currentStep === 'customize') {
-        // If there was an image, go back to describe step. Otherwise, to upload.
         if (imageDataUrl) {
             setCurrentStep('describe');
-            setIsDescriptionEditable(false); // Reset editability
+            setIsDescriptionEditable(false); 
         } else {
-            resetState(); // Go all the way back to upload if no image
+            resetState(); 
         }
     }
     else if (currentStep === 'describe') {
-      // From describe, always go back to upload and clear image related states
       setImageDataUrl(null); 
       setImageDescription('');
       setCurrentStep('upload');
@@ -198,10 +204,42 @@ export default function PhotoVersePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
       <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
-        <div className="absolute top-2 right-2 z-10">
+        <div className="absolute top-2 right-2 z-10 flex items-center space-x-2">
           <ThemeToggle />
+          {authLoading ? (
+            <Button variant="outline" size="icon" disabled className="rounded-full">
+              <Loader2 className="h-5 w-5 animate-spin" />
+            </Button>
+          ) : user ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  {user.photoURL ? (
+                    <img src={user.photoURL} alt={user.displayName || "User"} className="h-6 w-6 rounded-full" />
+                  ) : (
+                    <UserCircle className="h-5 w-5" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuLabel>{user.displayName || user.email}</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                {/* <DropdownMenuItem>Profile (Coming Soon)</DropdownMenuItem>
+                <DropdownMenuItem>My Poems (Coming Soon)</DropdownMenuItem>
+                <DropdownMenuSeparator /> */}
+                <DropdownMenuItem onClick={logout}>
+                  <LogOut className="mr-2 h-4 w-4" />
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <Button variant="outline" onClick={loginWithGoogle}>
+              <LogIn className="mr-2 h-4 w-4" /> Login
+            </Button>
+          )}
         </div>
-        <div className="flex justify-center items-center gap-3 mb-2">
+        <div className="flex justify-center items-center gap-3 mb-2 pt-12 sm:pt-0">
           <PhotoVerseLogo className="h-12 w-12 sm:h-16 sm:w-16" />
           <h1 className="text-4xl sm:text-5xl font-headline text-primary tracking-tight">
             PhotoVerse
@@ -223,7 +261,7 @@ export default function PhotoVersePage() {
           <PhotoUpload 
             onImageSelected={handleImageSelected} 
             isLoading={isDescriptionLoading}
-            onSkipToDescription={() => handleSkipToCustomize("")} // Pass empty string for description
+            onSkipToDescription={() => handleSkipToCustomize("")} 
           />
         )}
 
@@ -233,7 +271,7 @@ export default function PhotoVersePage() {
             initialDescription={imageDescription}
             isFetchingDescription={isDescriptionLoading}
             onDescriptionConfirm={handleDescriptionConfirm}
-            onSkip={handleSkipToCustomize} // Pass current description
+            onSkip={handleSkipToCustomize} 
             onFetchDescriptionRequest={handleFetchAIDescription}
           />
         )}
@@ -257,6 +295,7 @@ export default function PhotoVersePage() {
             isGeneratingPoem={isPoemLoading}
             onRegenerate={handleGeneratePoem}
             onStartOver={resetState}
+            // showSaveButton={!!user} // Example: Only show save if user is logged in
           />
         )}
         
@@ -309,11 +348,12 @@ export default function PhotoVersePage() {
                 <p>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</p>
                 <ul className="list-disc list-inside space-y-2 pl-4">
                   <li><strong>Image Handling (if uploaded):</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends.</li>
-                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you.</li>
-                  <li><strong>No Personal Data Collection (Beyond Input):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) such as your name, email address, or location. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information if you have privacy concerns.</li>
-                  <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data and text inputs are protected during transit.</li>
-                  <li><strong>No Third-Party Sharing (Beyond Essential AI Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
-                  <li><strong>Ephemeral Creative Sessions:</strong> Think of your time on PhotoVerse as a creative session. Once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application in a way that is tied to you.</li>
+                  <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you unless you choose to save it via an account feature (if available and you are logged in).</li>
+                  <li><strong>User Accounts (if you sign in):</strong> If you create an account or sign in (e.g., via Google), we will store your basic profile information provided by the authentication provider (like name, email, profile picture) to identify you. Any poems or settings you explicitly choose to save to your account will be stored in our secure database, associated with your account.</li>
+                  <li><strong>No Personal Data Collection (Beyond Input & Account):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) beyond what's necessary for account functioning and the inputs you provide for poem generation. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information if you have privacy concerns.</li>
+                  <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data, text inputs, and account information are protected during transit.</li>
+                  <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Google) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
+                  <li><strong>Ephemeral Creative Sessions (for guests):</strong> Think of your time on PhotoVerse as a creative session. If you are not logged in, once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
                 </ul>
                 <p className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</p>
               </AccordionContent>
