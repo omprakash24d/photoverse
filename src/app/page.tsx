@@ -311,7 +311,12 @@ export default function PhotoVersePage() {
           <div className="fixed inset-0 bg-background/80 flex flex-col justify-center items-center z-50">
             <Loader2 className="h-16 w-16 animate-spin text-primary mb-4" />
             <p className="text-xl font-headline text-primary">
-              {isDescriptionLoading ? "Analyzing your masterpiece..." : "Weaving words of wonder..."}
+              {isDescriptionLoading
+                ? "Analyzing your masterpiece..."
+                : isPoemLoading
+                  ? `Weaving your ${poemSettings.style.toLowerCase()} poem in ${poemSettings.language}...`
+                  : "Processing..."
+              }
             </p>
           </div>
         )}
