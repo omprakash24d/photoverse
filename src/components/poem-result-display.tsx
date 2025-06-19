@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { toPng } from 'html-to-image';
-import { PoemImageOutput } from './poem-image-output';
+import { PoemImageOutput, type ThemeColors } from './poem-image-output'; // Import ThemeColors type
 import { PhotoVerseLogo } from './photo-verse-logo';
 
 
@@ -34,6 +34,8 @@ export function PoemResultDisplay({
   const [editablePoem, setEditablePoem] = useState<string>(poem || "");
   const poemImageRef = useRef<HTMLDivElement>(null);
   const [isDownloadingImage, setIsDownloadingImage] = useState(false);
+  const [imageExportThemeColors, setImageExportThemeColors] = useState<ThemeColors | null>(null);
+
 
   useEffect(() => {
     setEditablePoem(poem || "");
@@ -98,52 +100,63 @@ export function PoemResultDisplay({
       description: "Please wait while your poem image is being created.",
     });
 
-    const node = poemImageRef.current;
-    const isDarkMode = document.documentElement.classList.contains('dark');
-    const originalClasses = node.className || ""; // Ensure originalClasses is a string
-    
-    // Temporarily apply theme class for html-to-image to pick up CSS variables
-    // Also, remove any existing 'light' or 'dark' classes to avoid conflicts
-    const classesWithoutTheme = originalClasses.replace(/\blight\b|\bdark\b/g, '').trim();
-    node.className = `${classesWithoutTheme} ${isDarkMode ? 'dark' : 'light'}`.trim();
-    
-    // Ensure styles are applied if class change is too fast for DOM update cycle
-    // Adding a slight delay or using requestAnimationFrame can help.
-    await new Promise(resolve => setTimeout(resolve, 50)); // Small delay
+    // Create a temporary div to accurately compute styles based on the current theme
+    const tempDiv = document.createElement('div');
+    tempDiv.style.visibility = 'hidden'; // Keep it off-screen effectively
+    document.body.appendChild(tempDiv);
+    const isDark = document.documentElement.classList.contains('dark');
+    tempDiv.className = isDark ? 'dark' : 'light'; // Apply the theme class
 
+    const computed = getComputedStyle(tempDiv);
+    const resolvedColors: ThemeColors = {
+      background: computed.backgroundColor, // Already a full CSS color string e.g., "rgb(30, 41, 59)"
+      foreground: computed.color,           // Already a full CSS color string e.g., "rgb(226, 232, 240)"
+      primary: `hsl(${computed.getPropertyValue('--primary').trim()})`, // Construct HSL string
+      border: `hsl(${computed.getPropertyValue('--border').trim()})`,     // Construct HSL string
+    };
+    document.body.removeChild(tempDiv); // Clean up the temporary div
 
-    try {
-      const dataUrl = await toPng(node, {
-        quality: 0.95,
-        pixelRatio: 2,
-        // Let the component's CSS variables (resolved by the theme class) handle background.
-        // Explicitly setting it here might override the HSL variable if not careful.
-        // backgroundColor: isDarkMode ? 'hsl(240 10% 10%)' : 'hsl(240 100% 98.5%)',
-      });
-      
-      const link = document.createElement('a');
-      link.download = 'photoverse_poem_image.png';
-      link.href = dataUrl;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      toast({
-        title: "Image Downloaded!",
-        description: "Your poem image has been successfully downloaded.",
-      });
-    } catch (error) {
-      console.error('Failed to generate or download image:', error);
-      toast({
-        variant: "destructive",
-        title: "Image Generation Failed",
-        description: `Could not generate the image. Error: ${(error as Error).message}. Ensure browser allows canvas data extraction.`,
-      });
-    } finally {
-      // Restore original classes
-      node.className = originalClasses;
-      setIsDownloadingImage(false);
-    }
+    setImageExportThemeColors(resolvedColors); // Set state to trigger re-render of PoemImageOutput
+
+    // Delay to allow React to re-render PoemImageOutput with new props
+    setTimeout(async () => {
+      if (!poemImageRef.current) {
+        setIsDownloadingImage(false);
+        setImageExportThemeColors(null);
+        toast({ variant: "destructive", title: "Error", description: "Image generation component not found after delay." });
+        return;
+      }
+
+      try {
+        const dataUrl = await toPng(poemImageRef.current, {
+          quality: 0.95,
+          pixelRatio: 2,
+          // No need to set backgroundColor here if PoemImageOutput sets its own background
+        });
+        
+        const link = document.createElement('a');
+        link.download = 'photoverse_poem_image.png';
+        link.href = dataUrl;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        
+        toast({
+          title: "Image Downloaded!",
+          description: "Your poem image has been successfully downloaded.",
+        });
+      } catch (error) {
+        console.error('Failed to generate or download image:', error);
+        toast({
+          variant: "destructive",
+          title: "Image Generation Failed",
+          description: `Could not generate the image. Error: ${(error as Error).message}. Ensure browser allows canvas data extraction.`,
+        });
+      } finally {
+        setIsDownloadingImage(false);
+        setImageExportThemeColors(null); // Reset for next time
+      }
+    }, 100); // 100ms delay, adjust if needed
   };
   
 
@@ -210,26 +223,27 @@ export function PoemResultDisplay({
         </Button>
       </CardFooter>
 
+      {/* This div is captured by html-to-image. It's rendered off-screen. */}
       <div 
         ref={poemImageRef} 
         style={{ 
             position: 'absolute', 
             left: '-9999px', 
             top: '-9999px',
-            zIndex: -10, 
+            zIndex: -10,
         }}
       >
-        {editablePoem && ( 
+        {/* Conditionally render PoemImageOutput only when themeColors are available and we are attempting to download */}
+        {editablePoem && imageExportThemeColors && ( 
            <PoemImageOutput
             imageDataUrl={imageDataUrl}
             poemText={editablePoem}
             LogoComponent={PhotoVerseLogo}
             siteName="PhotoVerse"
+            themeColors={imageExportThemeColors}
           />
         )}
       </div>
     </Card>
   );
 }
-
-    
