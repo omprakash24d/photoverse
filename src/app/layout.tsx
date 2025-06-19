@@ -1,17 +1,16 @@
 import { type Metadata } from 'next'
 import {
   ClerkProvider,
-  SignInButton,
-  SignUpButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
+  // SignInButton, // Removed
+  // SignUpButton, // Removed
+  // SignedIn, // Removed
+  // SignedOut, // Removed
+  // UserButton, // Removed
 } from '@clerk/nextjs'
 import { Geist, Geist_Mono } from 'next/font/google'
 import './globals.css'
 import { Toaster } from '@/components/ui/toaster'
 import { ThemeProvider } from '@/components/theme-provider'
-// AuthProvider import removed
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -107,16 +106,7 @@ export default function RootLayout({
           />
         </head>
         <body className={`${geistSans.variable} ${geistMono.variable} font-body antialiased`}>
-          <header className="flex justify-end items-center p-4 gap-4 h-16">
-            <SignedOut>
-              <SignInButton />
-              <SignUpButton />
-            </SignedOut>
-            <SignedIn>
-              <UserButton />
-            </SignedIn>
-          </header>
-          {/* AuthProvider wrapper removed */}
+          {/* Header with Clerk buttons removed from here */}
           <ThemeProvider
             attribute="class"
             defaultTheme="system"

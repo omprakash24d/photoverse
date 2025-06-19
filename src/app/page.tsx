@@ -2,6 +2,13 @@
 "use client";
 
 import React, { useState, useCallback } from 'react';
+import {
+  SignInButton,
+  SignUpButton,
+  SignedIn,
+  SignedOut,
+  UserButton,
+} from '@clerk/nextjs';
 import { PhotoVerseLogo } from '@/components/photo-verse-logo';
 import { PhotoUpload } from '@/components/photo-upload';
 import { ImageDescriptionForm } from '@/components/image-description-form';
@@ -12,9 +19,8 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import type { AppStep, PoemSettings } from '@/lib/types';
-import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react'; // LogIn, LogOut, UserCircle removed
+import { Loader2, ArrowLeft, Info, ShieldCheck, Lightbulb, Sparkles } from 'lucide-react';
 import { ThemeToggle } from '@/components/theme-toggle';
-// import { useAuth } from '@/context/auth-context'; // Firebase useAuth removed
 
 import {
   Accordion,
@@ -22,15 +28,6 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-// DropdownMenu components for user removed as Clerk handles this in layout
-// import {
-//   DropdownMenu,
-//   DropdownMenuContent,
-//   DropdownMenuItem,
-//   DropdownMenuLabel,
-//   DropdownMenuSeparator,
-//   DropdownMenuTrigger,
-// } from "@/components/ui/dropdown-menu"
 
 const defaultPoemSettings: PoemSettings = {
   language: 'English',
@@ -59,7 +56,6 @@ export default function PhotoVersePage() {
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
 
   const { toast } = useToast();
-  // const { user, loading: authLoading, loginWithGoogle, logout } = useAuth(); // Firebase useAuth removed
 
   const resetState = useCallback(() => {
     setCurrentStep('upload');
@@ -219,10 +215,15 @@ export default function PhotoVersePage() {
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
       <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
-        {/* ThemeToggle and Auth buttons moved to global layout */}
-         <div className="absolute top-2 right-2 z-10">
+         <div className="absolute top-4 right-4 z-10 flex items-center gap-4">
           <ThemeToggle />
-          {/* Firebase Auth UI removed, Clerk handles this in RootLayout's <header> */}
+          <SignedOut>
+            <SignInButton />
+            <SignUpButton />
+          </SignedOut>
+          <SignedIn>
+            <UserButton />
+          </SignedIn>
         </div>
         <div className="flex justify-center items-center gap-3 mb-2 pt-12 sm:pt-0">
           <PhotoVerseLogo className="h-12 w-12 sm:h-16 sm:w-16" />
@@ -281,7 +282,6 @@ export default function PhotoVersePage() {
             isGeneratingPoem={isPoemLoading}
             onRegenerate={handleGeneratePoem}
             onStartOver={resetState}
-            // showSaveButton feature would depend on the new auth system if implemented
           />
         )}
         
@@ -397,4 +397,3 @@ export default function PhotoVersePage() {
     </div>
   );
 }
-
