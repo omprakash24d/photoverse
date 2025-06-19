@@ -1,3 +1,4 @@
+
 // DescribeImage flow implementation
 'use server';
 /**
@@ -21,7 +22,7 @@ const DescribeImageInputSchema = z.object({
 export type DescribeImageInput = z.infer<typeof DescribeImageInputSchema>;
 
 const DescribeImageOutputSchema = z.object({
-  description: z.string().describe('A textual description of the image.'),
+  description: z.string().describe('A textual description of the image, rich in detail and evocative language suitable for inspiring a poem.'),
 });
 export type DescribeImageOutput = z.infer<typeof DescribeImageOutputSchema>;
 
@@ -33,7 +34,17 @@ const describeImagePrompt = ai.definePrompt({
   name: 'describeImagePrompt',
   input: {schema: DescribeImageInputSchema},
   output: {schema: DescribeImageOutputSchema},
-  prompt: `You are an AI expert in understanding images. Describe the image in detail, identifying key objects, scenes, and overall atmosphere.
+  prompt: `You are an AI expert in understanding images, tasked with creating a vivid and evocative description that will serve as inspiration for a poem.
+
+Focus on:
+- Key objects and subjects: Identify them clearly.
+- Scene and setting: Describe the environment, time of day, and location.
+- Colors and lighting: Detail the prominent colors and how light influences the scene.
+- Textures and patterns: Note any interesting textures or visual patterns.
+- Atmosphere and mood: Capture the overall feeling or emotion the image conveys (e.g., serene, chaotic, joyful, mysterious).
+- Sensory details: If possible, infer other sensory details that the image might suggest (e.g., the warmth of the sun, the sound of waves, a particular scent).
+
+Your description should be detailed, engaging, and provide a strong foundation for poetic interpretation.
 
 Image: {{media url=photoDataUri}}`,
 });
@@ -49,3 +60,4 @@ const describeImageFlow = ai.defineFlow(
     return output!;
   }
 );
+
