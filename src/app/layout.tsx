@@ -32,7 +32,21 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const content = (
+  const providers = (
+    <ClerkEnabledProvider isEnabled={isClerkEnabled}>
+      <ThemeProvider
+        attribute="class"
+        defaultTheme="system"
+        enableSystem
+        disableTransitionOnChange
+      >
+        {children}
+        <Toaster />
+      </ThemeProvider>
+    </ClerkEnabledProvider>
+  );
+
+  return (
     <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -47,24 +61,8 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-body antialiased`}>
-        <ClerkEnabledProvider isEnabled={isClerkEnabled}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Toaster />
-          </ThemeProvider>
-        </ClerkEnabledProvider>
+        {isClerkEnabled ? <ClerkProvider>{providers}</ClerkProvider> : providers}
       </body>
     </html>
   );
-
-  if (isClerkEnabled) {
-    return <ClerkProvider>{content}</ClerkProvider>;
-  }
-
-  return content;
 }
