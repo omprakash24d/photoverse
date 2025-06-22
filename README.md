@@ -44,9 +44,16 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 This project is designed to run within the Firebase Studio environment.
 
 1.  **Dependencies**: `package.json` lists all necessary dependencies. They are typically installed automatically in the Studio environment.
-2.  **Environment Variables**: Ensure you have a `.env` file with necessary API keys for Genkit/Google AI if running locally or deploying outside of a pre-configured environment.
+2.  **Environment Variables**: For the application to function correctly, you need to set up your environment variables. Create a file named `.env` in the root of your project and add the following content. You will need to replace the placeholder values with your actual API keys.
+
     ```env
-    # Example .env content (specific keys depend on your Google AI setup)
+    # Clerk Authentication Keys
+    # Get these from your Clerk Dashboard: https://dashboard.clerk.com/
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=YOUR_CLERK_PUBLISHABLE_KEY
+    CLERK_SECRET_KEY=YOUR_CLERK_SECRET_KEY
+
+    # Google AI API Key for Genkit
+    # Get this from Google AI Studio: https://aistudio.google.com/app/apikey
     GOOGLE_API_KEY=YOUR_GOOGLE_AI_API_KEY
     ```
 3.  **Run Development Server**:

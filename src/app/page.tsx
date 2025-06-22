@@ -17,8 +17,6 @@ import { PoemResultDisplay } from '@/components/poem-result-display';
 import { LoadingOverlay } from '@/components/loading-overlay';
 import { InfoAccordion } from '@/components/info-accordion';
 import { PageFooter } from '@/components/page-footer';
-import { PhotoVerseLogo } from '@/components/photo-verse-logo';
-import { toPng } from 'html-to-image';
 
 
 const defaultPoemSettings: PoemSettings = {
@@ -61,13 +59,8 @@ export default function PhotoVersePage() {
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [isPoemLoading, setIsPoemLoading] = useState<boolean>(false);
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
-  const [isDownloadingImage, setIsDownloadingImage] = useState(false);
-  const [imageExportThemeColors, setImageExportThemeColors] = useState<ResolvedThemeColors | null>(null);
-
 
   const { toast } = useToast();
-  const poemImageRef = useRef<HTMLDivElement>(null);
-
 
   const resetState = useCallback(() => {
     setCurrentStep('upload');
@@ -78,8 +71,6 @@ export default function PhotoVersePage() {
     setIsDescriptionLoading(false);
     setIsPoemLoading(false);
     setIsDescriptionEditable(false);
-    setIsDownloadingImage(false);
-    setImageExportThemeColors(null);
   }, []);
 
   const handleImageSelected = useCallback(async (imageSource: File | string) => {
