@@ -14,10 +14,10 @@ export function PageHeader() {
       <div className="absolute top-0 right-0 flex items-center gap-2 sm:gap-4 z-10">
         <ThemeToggle />
         <SignedOut>
-          <SignInButton mode="modal">
+          <SignInButton>
             <Button variant="outline" size="sm">Sign In</Button>
           </SignInButton>
-          <SignUpButton mode="modal">
+          <SignUpButton>
             <Button size="sm">Sign Up</Button>
           </SignUpButton>
         </SignedOut>
