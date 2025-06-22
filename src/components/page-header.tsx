@@ -1,4 +1,3 @@
-
 "use client";
 
 import React from 'react';
@@ -6,24 +5,31 @@ import { SignInButton, SignUpButton, SignedIn, SignedOut, UserButton } from '@cl
 import { PhotoVerseLogo } from '@/components/photo-verse-logo';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '@/components/theme-toggle';
+import { useIsClerkEnabled } from '@/hooks/use-clerk-enabled';
 
 export function PageHeader() {
+  const isClerkEnabled = useIsClerkEnabled();
+
   return (
     <header className="w-full max-w-3xl text-center mb-8 sm:mb-12 relative">
       {/* Theme Toggle and Authentication Buttons - Positioned to the top right */}
       <div className="absolute top-0 right-0 flex items-center gap-2 sm:gap-4 z-10">
         <ThemeToggle />
-        <SignedOut>
-          <SignInButton>
-            <Button variant="outline" size="sm">Sign In</Button>
-          </SignInButton>
-          <SignUpButton>
-            <Button size="sm">Sign Up</Button>
-          </SignUpButton>
-        </SignedOut>
-        <SignedIn>
-          <UserButton afterSignOutUrl="/" />
-        </SignedIn>
+        {isClerkEnabled && (
+          <>
+            <SignedOut>
+              <SignInButton>
+                <Button variant="outline" size="sm">Sign In</Button>
+              </SignInButton>
+              <SignUpButton>
+                <Button size="sm">Sign Up</Button>
+              </SignUpButton>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+          </>
+        )}
       </div>
 
       {/* Logo and Title - Conditionally add padding top if auth buttons are present */}
