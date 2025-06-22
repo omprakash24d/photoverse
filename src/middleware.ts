@@ -1,18 +1,35 @@
 
 import { clerkMiddleware, createRouteMatcher } from '@clerk/nextjs/server';
+import type { NextRequest } from 'next/server';
 
-// Define the routes that should be protected
-const isProtectedRoute = createRouteMatcher([
-  // No routes are protected by default.
-  // Add routes like '/dashboard' or '/profile' here if you want to protect them.
-]);
+// Check if Clerk is configured. We'll use this to conditionally run the middleware.
+const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
+const isClerkEnabled = !!(PUBLISHABLE_KEY && PUBLISHABLE_KEY.trim() !== 'YOUR_CLERK_PUBLISHABLE_KEY');
 
-export default clerkMiddleware((auth, req) => {
-  // If the route is protected, enforce authentication
-  if (isProtectedRoute(req)) {
-    auth().protect();
+// Define the routes that should be protected if Clerk is enabled.
+// By default, no routes are protected.
+const isProtectedRoute = createRouteMatcher([]);
+
+// The actual middleware function that Next.js will execute.
+export default function middleware(req: NextRequest) {
+  // If Clerk is not enabled, we don't do anything.
+  // The request is passed through to the next handler.
+  // Returning nothing from a middleware is equivalent to NextResponse.next().
+  if (!isClerkEnabled) {
+    return;
   }
-});
+
+  // If Clerk IS enabled, we create and execute the Clerk middleware.
+  // This function is only created and called if the keys are valid,
+  // preventing the "Publishable key not valid" error.
+  const clerkMiddlewareHandler = clerkMiddleware((auth, req) => {
+    if (isProtectedRoute(req)) {
+      auth().protect();
+    }
+  });
+
+  return clerkMiddlewareHandler(req);
+}
 
 export const config = {
   matcher: [
