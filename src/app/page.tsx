@@ -131,7 +131,7 @@ export default function PhotoVersePage() {
       toast({
         variant: "destructive",
         title: "AI Description Failed",
-        description: "Could not generate an AI description. Please write one manually or try regenerating.",
+        description: (error as Error).message,
       });
     } finally {
       setIsDescriptionLoading(false);
@@ -155,7 +155,7 @@ export default function PhotoVersePage() {
       toast({
         variant: "destructive",
         title: "AI Description Failed",
-        description: "Could not regenerate AI description.",
+        description: (error as Error).message,
       });
     } finally {
       setIsDescriptionLoading(false);
@@ -230,7 +230,7 @@ export default function PhotoVersePage() {
             toast({
               variant: "destructive",
               title: "AI Image Failed",
-              description: "Could not generate an accompanying image, but your poem is ready!",
+              description: (imageError as Error).message,
             });
           })
           .finally(() => setIsImageGenerating(false));
@@ -242,7 +242,7 @@ export default function PhotoVersePage() {
 
     } catch (error) {
       console.error("Error generating poem:", error);
-      toast({ variant: "destructive", title: "Poem Generation Failed", description: "Could not generate the poem. Please try again or adjust your settings." });
+      toast({ variant: "destructive", title: "Poem Generation Failed", description: (error as Error).message });
       setIsPoemLoading(false);
     }
   }, [imageDescription, poemSettings, toast, imageDataUrl]);

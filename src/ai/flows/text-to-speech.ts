@@ -22,6 +22,9 @@ const TextToSpeechOutputSchema = z.object({
 export type TextToSpeechOutput = z.infer<typeof TextToSpeechOutputSchema>;
 
 export async function textToSpeech(input: TextToSpeechInput): Promise<TextToSpeechOutput> {
+  if (!process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY === 'YOUR_GOOGLE_AI_API_KEY') {
+    throw new Error('Google AI API key is not configured. Please add it to your .env file.');
+  }
   return textToSpeechFlow(input);
 }
 

@@ -33,6 +33,9 @@ const GeneratePoemOutputSchema = z.object({
 export type GeneratePoemOutput = z.infer<typeof GeneratePoemOutputSchema>;
 
 export async function generatePoem(input: GeneratePoemInput): Promise<GeneratePoemOutput> {
+  if (!process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY === 'YOUR_GOOGLE_AI_API_KEY') {
+    throw new Error('Google AI API key is not configured. Please add it to your .env file.');
+  }
   return generatePoemFlow(input);
 }
 

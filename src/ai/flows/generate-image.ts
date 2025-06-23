@@ -23,6 +23,9 @@ export type GenerateImageOutput = z.infer<typeof GenerateImageOutputSchema>;
 
 
 export async function generateImage(input: GenerateImageInput): Promise<GenerateImageOutput> {
+  if (!process.env.GOOGLE_API_KEY || process.env.GOOGLE_API_KEY === 'YOUR_GOOGLE_AI_API_KEY') {
+    throw new Error('Google AI API key is not configured. Please add it to your .env file.');
+  }
   return generateImageFlow(input);
 }
 
