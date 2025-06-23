@@ -16,7 +16,6 @@ import { PhotoUpload } from '@/components/photo-upload';
 import { ImageDescriptionForm } from '@/components/image-description-form';
 import { PoemCustomizationForm } from '@/components/poem-customization-form';
 import { PoemResultDisplay } from '@/components/poem-result-display';
-import { LoadingOverlay } from '@/components/loading-overlay';
 import { InfoAccordion } from '@/components/info-accordion';
 import { PageFooter } from '@/components/page-footer';
 
@@ -359,14 +358,6 @@ export default function PhotoVersePage() {
             onRegenerate={handleGeneratePoem} 
             onStartOver={resetState}
           />
-        )}
-
-        {(isDescriptionLoading || (isPoemLoading && currentStep !== 'display')) && (
-           <LoadingOverlay 
-                isDescriptionLoading={isDescriptionLoading}
-                isPoemLoading={isPoemLoading}
-                poemSettings={poemSettings}
-           />
         )}
         
         <InfoAccordion />
