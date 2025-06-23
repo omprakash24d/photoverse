@@ -8,31 +8,56 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Image from 'next/image';
 import { WebcamCaptureModal } from './webcam-capture-modal';
+import { useToast } from '@/hooks/use-toast';
 
 interface PhotoUploadProps {
   onImageSelected: (file: File | string) => void;
   isLoading?: boolean;
   onSkipToDescription: () => void;
-  onSurprisePoemRequest: () => void; // New prop for surprise poem
+  onSurprisePoemRequest: () => void;
 }
 
 export function PhotoUpload({ onImageSelected, isLoading = false, onSkipToDescription, onSurprisePoemRequest }: PhotoUploadProps) {
   const [preview, setPreview] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
   const [isWebcamModalOpen, setIsWebcamModalOpen] = useState(false);
+  const { toast } = useToast();
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const file = acceptedFiles[0];
+
+      if (!file.type.startsWith('image/')) {
+        toast({
+          variant: "destructive",
+          title: "Invalid File Type",
+          description: "Please upload a supported image file (e.g., PNG, JPG, WEBP).",
+        });
+        return;
+      }
+      
       setFileName(file.name);
       const reader = new FileReader();
+
       reader.onload = () => {
         setPreview(reader.result as string);
+        onImageSelected(file);
       };
+      
+      reader.onerror = () => {
+        console.error("Error reading file for preview.");
+        toast({
+          variant: "destructive",
+          title: "File Read Error",
+          description: "Could not read the selected file. It might be corrupted.",
+        });
+        setPreview(null);
+        setFileName(null);
+      };
+
       reader.readAsDataURL(file);
-      onImageSelected(file);
     }
-  }, [onImageSelected]);
+  }, [onImageSelected, toast]);
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
