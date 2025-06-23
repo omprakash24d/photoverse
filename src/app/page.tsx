@@ -29,49 +29,73 @@ const defaultPoemSettings: PoemSettings = {
   poeticDevices: '',
 };
 
-const fileToDataUri = (file: File): Promise<string> => {
+const MAX_IMAGE_DIMENSION = 1024; // Max width or height of 1024px
+
+const processAndResizeImage = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
+    // Check for valid image type on the client side
+    if (!file.type.startsWith('image/')) {
+        return reject(new Error('Invalid file type. Please upload an image.'));
+    }
+      
     const reader = new FileReader();
 
-    reader.onload = () => {
-      const result = reader.result as string;
-
-      // The Gemini API does not support 'application/octet-stream'.
-      // If the browser provides a generic MIME type, we must infer the correct one.
-      if (result.startsWith('data:application/octet-stream') || result.startsWith('data:;base64')) {
-        const fileName = file.name.toLowerCase();
-        let inferredType: string | null = null;
-        if (fileName.endsWith('.png')) inferredType = 'image/png';
-        else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) inferredType = 'image/jpeg';
-        else if (fileName.endsWith('.gif')) inferredType = 'image/gif';
-        else if (fileName.endsWith('.webp')) inferredType = 'image/webp';
-
-        if (inferredType) {
-          const base64Data = result.split(',')[1];
-          resolve(`data:${inferredType};base64,${base64Data}`);
-        } else {
-          reject(new Error("Unsupported file type. Please upload a valid image (PNG, JPG, GIF, WEBP)."));
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        let { width, height } = img;
+        
+        // If image is already small enough, no need to resize.
+        if (width <= MAX_IMAGE_DIMENSION && height <= MAX_IMAGE_DIMENSION) {
+          resolve(e.target?.result as string);
+          return;
         }
-        return; // Exit after handling
-      }
 
-      // If the result has a specific MIME type, ensure it's an image before resolving.
-      if (result.startsWith('data:image/')) {
-        resolve(result);
-      } else {
-        // Reject any other file types (e.g., text/plain) that might have slipped past the dropzone filter.
-        reject(new Error("Invalid file content. Please upload an image file."));
-      }
+        // Determine new dimensions while preserving aspect ratio
+        if (width > height) {
+          if (width > MAX_IMAGE_DIMENSION) {
+            height = Math.round(height * (MAX_IMAGE_DIMENSION / width));
+            width = MAX_IMAGE_DIMENSION;
+          }
+        } else {
+          if (height > MAX_IMAGE_DIMENSION) {
+            width = Math.round(width * (MAX_IMAGE_DIMENSION / height));
+            height = MAX_IMAGE_DIMENSION;
+          }
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d');
+        
+        if (!ctx) {
+          return reject(new Error('Could not get canvas context for image resizing.'));
+        }
+        
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert the resized image to a JPEG data URL for better compression.
+        const resizedDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+        resolve(resizedDataUrl);
+      };
+
+      img.onerror = () => {
+        reject(new Error("Could not load the image file for processing. It may be corrupt."));
+      };
+
+      // Set the image source to the file reader result
+      img.src = e.target?.result as string;
     };
 
-    reader.onerror = (error) => {
-      console.error("Error converting file to data URI:", error);
-      reject(new Error("Could not process the image file."));
+    reader.onerror = () => {
+      reject(new Error("Could not read the image file."));
     };
     
     reader.readAsDataURL(file);
   });
 };
+
 
 export default function PhotoVersePage() {
   const [currentStep, setCurrentStep] = useState<AppStep>('upload');
@@ -109,10 +133,11 @@ export default function PhotoVersePage() {
   const handleImageSelected = useCallback(async (imageSource: File | string) => {
     let dataUrl: string;
     if (typeof imageSource === 'string') {
-      dataUrl = imageSource; 
+      dataUrl = imageSource; // From webcam, already correctly sized
     } else {
       try {
-        dataUrl = await fileToDataUri(imageSource);
+        // Use the new resizing and processing function
+        dataUrl = await processAndResizeImage(imageSource);
       } catch (error) {
         toast({ variant: "destructive", title: "Image Processing Error", description: (error as Error).message });
         return;
