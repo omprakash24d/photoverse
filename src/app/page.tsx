@@ -18,6 +18,7 @@ import { PoemCustomizationForm } from '@/components/poem-customization-form';
 import { PoemResultDisplay } from '@/components/poem-result-display';
 import { InfoAccordion } from '@/components/info-accordion';
 import { PageFooter } from '@/components/page-footer';
+import { ProTips } from '@/components/pro-tips';
 
 
 const defaultPoemSettings: PoemSettings = {
@@ -31,10 +32,39 @@ const defaultPoemSettings: PoemSettings = {
 
 const MAX_IMAGE_DIMENSION = 1024; // Max width or height of 1024px
 
+const inferMimeType = (fileName: string): string => {
+  const extension = fileName.split('.').pop()?.toLowerCase();
+  switch (extension) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg';
+    case 'png':
+      return 'image/png';
+    case 'gif':
+      return 'image/gif';
+    case 'webp':
+      return 'image/webp';
+    default:
+      return 'application/octet-stream'; // Fallback
+  }
+};
+
+
 const processAndResizeImage = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
-    // Check for valid image type on the client side
-    if (!file.type.startsWith('image/')) {
+    let fileType = file.type;
+    // If the browser provides a generic MIME type, try to infer a better one from the file extension.
+    if (fileType === 'application/octet-stream') {
+        const inferredType = inferMimeType(file.name);
+        if (inferredType !== 'application/octet-stream') {
+            fileType = inferredType;
+        } else {
+            // If we still can't determine the type, reject it.
+            return reject(new Error('Invalid file type. Could not determine image format.'));
+        }
+    }
+
+    if (!fileType.startsWith('image/')) {
         return reject(new Error('Invalid file type. Please upload an image.'));
     }
       
@@ -47,7 +77,12 @@ const processAndResizeImage = (file: File): Promise<string> => {
         
         // If image is already small enough, no need to resize.
         if (width <= MAX_IMAGE_DIMENSION && height <= MAX_IMAGE_DIMENSION) {
-          resolve(e.target?.result as string);
+          // Resolve with the original data URI, but ensure it has the correct MIME type
+          let originalDataUrl = e.target?.result as string;
+          if (originalDataUrl.startsWith('data:application/octet-stream')) {
+             originalDataUrl = `data:${fileType};base64,${originalDataUrl.split(',')[1]}`;
+          }
+          resolve(originalDataUrl);
           return;
         }
 
@@ -387,6 +422,7 @@ export default function PhotoVersePage() {
           />
         )}
         
+        {currentStep !== 'display' && <ProTips />}
         <InfoAccordion />
       </main>
 
