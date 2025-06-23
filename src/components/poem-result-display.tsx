@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2, Wand2 } from 'lucide-react';
+import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2, Wand2, Volume2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
@@ -14,8 +14,10 @@ import { Label } from '@/components/ui/label';
 interface PoemResultDisplayProps {
   imageUrl: string | null;
   poem: string | null;
+  audioDataUrl: string | null;
   isGeneratingPoem: boolean;
   isGeneratingImage: boolean;
+  isGeneratingAudio: boolean;
   onRegenerate: () => void;
   onStartOver: () => void;
 }
@@ -23,8 +25,10 @@ interface PoemResultDisplayProps {
 export function PoemResultDisplay({
   imageUrl,
   poem,
+  audioDataUrl,
   isGeneratingPoem,
   isGeneratingImage,
+  isGeneratingAudio,
   onRegenerate,
   onStartOver,
 }: PoemResultDisplayProps) {
@@ -112,7 +116,7 @@ export function PoemResultDisplay({
               <Skeleton className="h-6 w-4/5" />
             </div>
           ) : (
-            <>
+            <div className="flex flex-col h-full">
               <Label htmlFor="editable-poem" className="font-body mb-2 flex items-center">
                 <Pencil className="mr-2 h-4 w-4 text-primary" /> Edit Your Poem:
               </Label>
@@ -125,12 +129,31 @@ export function PoemResultDisplay({
                 disabled={isGeneratingPoem}
                 aria-label="Editable poem text area"
               />
-            </>
+               <div className="mt-4">
+                <Label className="font-body mb-2 flex items-center">
+                  <Volume2 className="mr-2 h-4 w-4 text-primary" /> Listen to the Poem:
+                </Label>
+                {isGeneratingAudio && (
+                  <div className="flex items-center gap-2 text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>Generating audio...</span>
+                  </div>
+                )}
+                {audioDataUrl && !isGeneratingAudio && (
+                  <audio controls src={audioDataUrl} className="w-full">
+                    Your browser does not support the audio element.
+                  </audio>
+                )}
+                {!isGeneratingAudio && !audioDataUrl && (
+                    <p className="text-sm text-muted-foreground">Audio could not be generated for this poem.</p>
+                )}
+              </div>
+            </div>
           )}
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-center items-center gap-3 p-4 md:p-6 bg-muted/30 border-t">
-        <Button onClick={onRegenerate} disabled={isGeneratingPoem || isGeneratingImage} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+        <Button onClick={onRegenerate} disabled={isGeneratingPoem || isGeneratingImage || isGeneratingAudio} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           {isGeneratingPoem ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
           {isGeneratingPoem ? 'Generating...' : 'Regenerate'}
         </Button>

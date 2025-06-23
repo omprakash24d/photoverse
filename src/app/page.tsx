@@ -7,6 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
 import { generateImage, GenerateImageInput, GenerateImageOutput } from '@/ai/flows/generate-image';
+import { textToSpeech, TextToSpeechInput, TextToSpeechOutput } from '@/ai/flows/text-to-speech';
 import { AppStep, PoemSettings, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 import { ArrowLeft, Loader2, FileImage } from 'lucide-react';
 
@@ -48,11 +49,13 @@ export default function PhotoVersePage() {
   const [poemSettings, setPoemSettings] = useState<PoemSettings>(defaultPoemSettings);
   const [generatedPoem, setGeneratedPoem] = useState<string | null>(null);
   const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
+  const [audioDataUrl, setAudioDataUrl] = useState<string | null>(null);
 
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [isPoemLoading, setIsPoemLoading] = useState<boolean>(false);
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
   const [isImageGenerating, setIsImageGenerating] = useState<boolean>(false);
+  const [isAudioLoading, setIsAudioLoading] = useState<boolean>(false);
 
 
   const { toast } = useToast();
@@ -64,9 +67,11 @@ export default function PhotoVersePage() {
     setPoemSettings(defaultPoemSettings);
     setGeneratedPoem(null);
     setGeneratedImageUrl(null);
+    setAudioDataUrl(null);
     setIsDescriptionLoading(false);
     setIsPoemLoading(false);
     setIsImageGenerating(false);
+    setIsAudioLoading(false);
     setIsDescriptionEditable(false);
   }, []);
 
@@ -151,6 +156,7 @@ export default function PhotoVersePage() {
     setIsPoemLoading(true);
     setGeneratedPoem(null); 
     setGeneratedImageUrl(null);
+    setAudioDataUrl(null);
     
     try {
       const poemInput: GeneratePoemInput = {
@@ -167,23 +173,39 @@ export default function PhotoVersePage() {
       setCurrentStep('display');
       setIsPoemLoading(false);
 
-      // If user started with text, generate an image for them
+      // After poem is generated, kick off image and audio generation in parallel
+      const enhancementPromises = [];
+
+      // Task 1: Generate audio for the poem
+      setIsAudioLoading(true);
+      const audioPromise = textToSpeech(result.poem)
+        .then(audioResult => setAudioDataUrl(audioResult.audioDataUri))
+        .catch(audioError => {
+            console.error("Error generating audio:", audioError);
+            // Non-blocking, so just log it. A toast might be too noisy.
+        })
+        .finally(() => setIsAudioLoading(false));
+      enhancementPromises.push(audioPromise);
+
+      // Task 2: If user started with text, generate an image for them
       if (!imageDataUrl) {
         setIsImageGenerating(true);
-        try {
-          const imageResult = await generateImage({ description: imageDescription });
-          setGeneratedImageUrl(imageResult.imageDataUri);
-        } catch (imageError) {
-          console.error("Error generating image:", imageError);
-          toast({
-            variant: "destructive",
-            title: "AI Image Failed",
-            description: "Could not generate an accompanying image, but your poem is ready!",
-          });
-        } finally {
-          setIsImageGenerating(false);
-        }
+        const imagePromise = generateImage({ description: imageDescription })
+          .then(imageResult => setGeneratedImageUrl(imageResult.imageDataUri))
+          .catch(imageError => {
+            console.error("Error generating image:", imageError);
+            toast({
+              variant: "destructive",
+              title: "AI Image Failed",
+              description: "Could not generate an accompanying image, but your poem is ready!",
+            });
+          })
+          .finally(() => setIsImageGenerating(false));
+        enhancementPromises.push(imagePromise);
       }
+      
+      // We don't need to await these here as the UI will update when they complete
+      // Promise.allSettled(enhancementPromises);
 
     } catch (error) {
       console.error("Error generating poem:", error);
@@ -197,6 +219,7 @@ export default function PhotoVersePage() {
     setGeneratedPoem(null); 
     setImageDataUrl(null); 
     setGeneratedImageUrl(null);
+    setAudioDataUrl(null);
 
     const randomLanguage = LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)];
     const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
@@ -233,17 +256,21 @@ export default function PhotoVersePage() {
       setCurrentStep('display');
       setIsPoemLoading(false);
 
-      // Also generate an image for the surprise poem
+      // Kick off image and audio generation
       setIsImageGenerating(true);
-      try {
-        const imageResult = await generateImage({ description: "Spontaneous creativity, abstract art" });
-        setGeneratedImageUrl(imageResult.imageDataUri);
-      } catch (imageError) {
-        console.error("Error generating surprise image:", imageError);
-        // Don't toast here, it's a bonus
-      } finally {
-        setIsImageGenerating(false);
-      }
+      setIsAudioLoading(true);
+
+      const imagePromise = generateImage({ description: "Spontaneous creativity, abstract art" })
+        .then(imageResult => setGeneratedImageUrl(imageResult.imageDataUri))
+        .catch(imageError => console.error("Error generating surprise image:", imageError))
+        .finally(() => setIsImageGenerating(false));
+
+      const audioPromise = textToSpeech(result.poem)
+        .then(audioResult => setAudioDataUrl(audioResult.audioDataUri))
+        .catch(audioError => console.error("Error generating surprise audio:", audioError))
+        .finally(() => setIsAudioLoading(false));
+
+      // Promise.allSettled([imagePromise, audioPromise]);
       
     } catch (error) {
       console.error("Error generating surprise poem:", error);
@@ -262,6 +289,7 @@ export default function PhotoVersePage() {
     if (currentStep === 'display') {
       setGeneratedPoem(null);
       setGeneratedImageUrl(null);
+      setAudioDataUrl(null);
       setCurrentStep('customize');
       setIsDescriptionEditable(!imageDataUrl); 
     }
@@ -327,8 +355,10 @@ export default function PhotoVersePage() {
           <PoemResultDisplay
             imageUrl={imageDataUrl || generatedImageUrl}
             poem={generatedPoem}
+            audioDataUrl={audioDataUrl}
             isGeneratingPoem={isPoemLoading}
             isGeneratingImage={isImageGenerating}
+            isGeneratingAudio={isAudioLoading}
             onRegenerate={handleGeneratePoem} 
             onStartOver={resetState}
           />
