@@ -33,11 +33,43 @@ const defaultPoemSettings: PoemSettings = {
 const fileToDataUri = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
+
+    reader.onload = () => {
+      const result = reader.result as string;
+
+      // The Gemini API does not support 'application/octet-stream'.
+      // If the browser provides a generic MIME type, we must infer the correct one.
+      if (result.startsWith('data:application/octet-stream') || result.startsWith('data:;base64')) {
+        const fileName = file.name.toLowerCase();
+        let inferredType: string | null = null;
+        if (fileName.endsWith('.png')) inferredType = 'image/png';
+        else if (fileName.endsWith('.jpg') || fileName.endsWith('.jpeg')) inferredType = 'image/jpeg';
+        else if (fileName.endsWith('.gif')) inferredType = 'image/gif';
+        else if (fileName.endsWith('.webp')) inferredType = 'image/webp';
+
+        if (inferredType) {
+          const base64Data = result.split(',')[1];
+          resolve(`data:${inferredType};base64,${base64Data}`);
+        } else {
+          reject(new Error("Unsupported file type. Please upload a valid image (PNG, JPG, GIF, WEBP)."));
+        }
+        return; // Exit after handling
+      }
+
+      // If the result has a specific MIME type, ensure it's an image before resolving.
+      if (result.startsWith('data:image/')) {
+        resolve(result);
+      } else {
+        // Reject any other file types (e.g., text/plain) that might have slipped past the dropzone filter.
+        reject(new Error("Invalid file content. Please upload an image file."));
+      }
+    };
+
     reader.onerror = (error) => {
       console.error("Error converting file to data URI:", error);
       reject(new Error("Could not process the image file."));
     };
+    
     reader.readAsDataURL(file);
   });
 };
