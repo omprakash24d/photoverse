@@ -16,7 +16,7 @@ export default function TermsOfServicePage() {
           </Link>
         </Button>
         <h1 className="font-headline text-3xl sm:text-4xl text-primary mb-6">Terms of Service</h1>
-        <p>Last updated: {new Date().toLocaleDateString()}</p>
+        <p>Last updated: August 1, 2024</p>
 
         <h2 className="font-headline text-2xl mt-6 mb-3">1. Acceptance of Terms</h2>
         <p>By accessing and using PhotoVerse (the "Service"), you accept and agree to be bound by the terms and provision of this agreement. In addition, when using this Service, you shall be subject to any posted guidelines or rules applicable to such services. Any participation in this Service will constitute acceptance of this agreement.</p>
@@ -40,7 +40,7 @@ export default function TermsOfServicePage() {
         </ul>
 
         <h2 className="font-headline text-2xl mt-6 mb-3">5. Disclaimer of Warranties</h2>
-        <p>The Service is provided "as is" and "as available" without any warranties of any kind, express or implied, including but not limited to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that the Service will be uninterrupted, timely, secure, or error-free.</p>
+        <p>The Service is provided "as is" and "as available" without any warranties of any kind, express or implied, including but not to the implied warranties of merchantability, fitness for a particular purpose, or non-infringement. We do not warrant that the Service will be uninterrupted, timely, secure, or error-free.</p>
         
         <h2 className="font-headline text-2xl mt-6 mb-3">6. Limitation of Liability</h2>
         <p>In no event shall PhotoVerse, nor its directors, employees, partners, agents, suppliers, or affiliates, be liable for any indirect, incidental, special, consequential or punitive damages, including without limitation, loss of profits, data, use, goodwill, or other intangible losses, resulting from (i) your access to or use of or inability to access or use the Service; (ii) any conduct or content of any third party on the Service; (iii) any content obtained from the Service; and (iv) unauthorized access, use or alteration of your transmissions or content, whether based on warranty, contract, tort (including negligence) or any other legal theory, whether or not we have been informed of the possibility of such damage.</p>

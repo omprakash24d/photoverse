@@ -16,7 +16,7 @@ export default function PrivacyPolicyPage() {
           </Link>
         </Button>
         <h1 className="font-headline text-3xl sm:text-4xl text-primary mb-6">Privacy Policy</h1>
-        <p>Last updated: {new Date().toLocaleDateString()}</p>
+        <p>Last updated: August 1, 2024</p>
         
         <h2 className="font-headline text-2xl mt-6 mb-3">Introduction</h2>
         <p>Welcome to PhotoVerse ("we," "our," "us"). We are committed to protecting your privacy. This Privacy Policy explains how your information is collected, used, and disclosed by PhotoVerse when you use our website and services (collectively, the "Service").</p>

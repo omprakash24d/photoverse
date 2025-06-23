@@ -38,15 +38,15 @@ export default function ContactUsPage() {
             <div className="mt-10 pt-6 border-t border-border">
               <h2 className="font-semibold text-lg text-center mb-6">Connect with Om Prakash</h2>
               <div className="flex justify-center space-x-6 sm:space-x-8">
-                <a href="https://www.linkedin.com/in/om-prakash-yadav-991b29150/" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://www.linkedin.com/in/omrakash24d/" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="text-muted-foreground hover:text-primary transition-colors">
                   <Linkedin className="h-8 w-8 sm:h-10 sm:w-10" />
                   <span className="sr-only">LinkedIn</span>
                 </a>
-                <a href="https://twitter.com/OmPraka96205339" target="_blank" rel="noopener noreferrer" title="Twitter" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://twitter.com/omprakash25d" target="_blank" rel="noopener noreferrer" title="Twitter" className="text-muted-foreground hover:text-primary transition-colors">
                   <Twitter className="h-8 w-8 sm:h-10 sm:w-10" />
                   <span className="sr-only">Twitter</span>
                 </a>
-                <a href="https://github.com/OmPrakashAhir" target="_blank" rel="noopener noreferrer" title="GitHub" className="text-muted-foreground hover:text-primary transition-colors">
+                <a href="https://github.com/omprakash24d" target="_blank" rel="noopener noreferrer" title="GitHub" className="text-muted-foreground hover:text-primary transition-colors">
                   <Github className="h-8 w-8 sm:h-10 sm:w-10" />
                   <span className="sr-only">GitHub</span>
                 </a>
