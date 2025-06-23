@@ -1,4 +1,3 @@
-
 "use client";
 
 import { Lightbulb } from 'lucide-react';
@@ -12,10 +11,19 @@ export function ProTips() {
         <CardTitle className="font-headline text-xl text-primary">Pro-Tips for Great Poems</CardTitle>
       </CardHeader>
       <CardContent>
-        <ul className="list-disc list-inside space-y-2 text-muted-foreground font-body pl-2">
-          <li><strong>Be Specific:</strong> Instead of "a tree," try "a lonely oak tree on a misty hill at dawn."</li>
-          <li><strong>Add Emotion:</strong> Mention feelings in your description, like "a joyful, sunny beach" or "a melancholic, rainy street."</li>
-          <li><strong>Iterate!</strong> The best results often come after trying a few different descriptions or settings.</li>
+        <ul className="list-disc list-inside space-y-3 text-muted-foreground font-body pl-2">
+            <li>
+                <strong>Be Specific:</strong> Instead of "a tree," try "a lonely oak tree on a misty hill at dawn." Richer details create richer poems.
+            </li>
+            <li>
+                <strong>Add Emotion:</strong> Mention feelings directly. "A joyful, sunny beach" will yield a very different poem than "a desolate, empty beach."
+            </li>
+            <li>
+                <strong>Use All Senses:</strong> Go beyond just sight. What might you hear, smell, or feel? Think "the crash of waves" or "the chill of the wind."
+            </li>
+            <li>
+                <strong>Iterate & Refine:</strong> The first poem is just a starting point. Hit "Regenerate" for a new take, or tweak your settings. Great results come from experimenting!
+            </li>
         </ul>
       </CardContent>
     </Card>
