@@ -27,9 +27,8 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc pl-6 space-y-2">
           <li><strong>Information you provide directly:</strong>
             <ul className="list-circle pl-6 mt-1 space-y-1">
-              <li>When you upload an image, we process this image to generate a description. The image is sent to our AI service for this purpose. We do not store your uploaded images permanently on our servers after the description is generated and your session ends, unless you are signed in and explicitly use a future "save" feature.</li>
-              <li>When you provide a text description or poem customization preferences (language, style, tone, length, custom instructions), this information is used to generate the poem. This data is also processed in memory and not stored permanently unless explicitly saved by a logged-in user via a future feature.</li>
-              <li>If you sign up for an account using Clerk (e.g., via Google or other methods), Clerk handles your authentication and provides us with basic profile information (like name, email, profile picture) to identify you. We do not store your passwords.</li>
+              <li>When you upload an image, we process this image to generate a description. The image is sent to our AI service for this purpose. We do not store your uploaded images permanently on our servers after the description is generated and your session ends.</li>
+              <li>When you provide a text description or poem customization preferences (language, style, tone, length, custom instructions), this information is used to generate the poem. This data is also processed in memory and not stored permanently.</li>
             </ul>
           </li>
           <li><strong>Information collected automatically:</strong>
@@ -46,8 +45,6 @@ export default function PrivacyPolicyPage() {
           <li>Generate image descriptions and poems as requested by you.</li>
           <li>Improve, personalize, and expand our Service.</li>
           <li>Understand and analyze how you use our Service.</li>
-          <li>Communicate with you, either directly or through one of our partners, including for customer service, to provide you with updates and other information relating to the Service, and for marketing and promotional purposes (if you opt-in).</li>
-          <li>Process your transactions (if applicable for future features).</li>
           <li>Find and prevent fraud.</li>
         </ul>
         
@@ -55,7 +52,6 @@ export default function PrivacyPolicyPage() {
         <p>We do not sell, rent, or share your personal information with third parties except in the circumstances described below:</p>
         <ul className="list-disc pl-6 space-y-2">
             <li><strong>AI Service Providers:</strong> Your uploaded images and text inputs are shared with third-party AI service providers (e.g., Google AI via Genkit) solely for the purpose of generating descriptions and poems. These providers have their own privacy policies.</li>
-            <li><strong>Authentication Provider:</strong> If you sign in, your authentication is handled by Clerk, Inc. Their privacy policy governs the data they collect.</li>
             <li><strong>Legal Requirements:</strong> We may disclose your information if required to do so by law or in the good faith belief that such action is necessary to comply with a legal obligation, protect and defend our rights or property, prevent fraud, act in urgent circumstances to protect the personal safety of users of the Service, or protect against legal liability.</li>
         </ul>
 
@@ -65,7 +61,6 @@ export default function PrivacyPolicyPage() {
         <h2 className="font-headline text-2xl mt-6 mb-3">Your Choices</h2>
          <ul className="list-disc pl-6 space-y-2">
           <li>You can choose not to provide certain information, but this may prevent you from using certain features of the Service.</li>
-          <li>If you have an account, you may be able to update or delete your information through your account settings (managed by Clerk).</li>
         </ul>
 
         <h2 className="font-headline text-2xl mt-6 mb-3">Children's Privacy</h2>

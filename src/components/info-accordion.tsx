@@ -141,7 +141,7 @@ export function InfoAccordion() {
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-1">Are my images and poems stored?</h4>
-              <div>Please refer to our "Your Data, Your Privacy" section for details. Generally, for guest users, images are processed for description and then discarded from our active servers. Poems are generated based on your input and are not stored permanently unless you are signed in and a future "save" feature is used explicitly. Your privacy is important to us.</div>
+              <div>Please refer to our "Your Data, Your Privacy" section for details. Generally, images are processed for description and then discarded from our active servers. Poems are generated based on your input and are not stored permanently. Your privacy is important to us.</div>
             </div>
              <div>
               <h4 className="font-semibold text-foreground mb-1">What languages, styles, and tones are available?</h4>
@@ -180,13 +180,12 @@ export function InfoAccordion() {
             <div>We take your privacy seriously. Here’s how we handle your data when you use PhotoVerse:</div>
             <ul className="list-disc list-inside space-y-2 pl-4">
               <li><strong>Image Handling (if uploaded):</strong> When you upload an image, it is securely transmitted to our AI service solely for the purpose of generating a description. This image data is processed in memory and is <strong>not stored permanently on our servers</strong> after the description is generated and your current session ends.</li>
-              <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences (language, style, tone, length, custom instructions) are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong> associated with you unless you choose to save it via an account feature (if available and you are logged in). Currently, poems are not saved to user accounts automatically.</li>
+              <li><strong>Description & Poem Settings:</strong> The image description (whether AI-generated, from your image, or manually entered by you) and your chosen poem preferences are sent to another secure AI service to craft your unique poem. This information is also processed in memory for the duration of the generation and is <strong>not stored permanently</strong>.</li>
               <li><strong>"Surprise Me" Poem Generation:</strong> When you use the "Surprise Me with a Poem!" feature, no image is uploaded. A generic creative prompt and randomly selected poem settings are used for generation. This process adheres to the same data handling principles as other poem generations.</li>
-              <li><strong>User Accounts (if you sign in):</strong> If you create an account or sign in (e.g., via Google or other Clerk-supported methods), we will store your basic profile information provided by the authentication provider (like name, email, profile picture) to identify you. Any poems or settings you explicitly choose to save to your account (a feature planned for the future) will be stored in our secure database, associated with your account. At present, logging in provides a personalized experience but does not automatically save your creations.</li>
-              <li><strong>No Personal Data Collection (Beyond Input & Account):</strong> PhotoVerse does not request, collect, or store any personal identifiable information (PII) beyond what's necessary for account functioning and the inputs you provide for poem generation. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information if you have privacy concerns.</li>
-              <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data, text inputs, and account information are protected during transit.</li>
-              <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Clerk) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
-              <li><strong>Ephemeral Creative Sessions (for guests):</strong> Think of your time on PhotoVerse as a creative session. If you are not logged in, once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
+              <li><strong>No Personal Data Collection:</strong> PhotoVerse does not request, collect, or store any personally identifiable information (PII) beyond the inputs you provide for poem generation. You are responsible for the content of the images you choose to upload and the text you provide; please be mindful and avoid uploading/entering sensitive personal information.</li>
+              <li><strong>Secure Transmission:</strong> We use industry-standard HTTPS encryption for all data transmitted between your browser and our services. This ensures that your image data and text inputs are protected during transit.</li>
+              <li><strong>No Third-Party Sharing (Beyond Essential AI Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
+              <li><strong>Ephemeral Creative Sessions:</strong> Think of your time on PhotoVerse as a creative session. Once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
             </ul>
             <div className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out.</div>
           </AccordionContent>
@@ -195,5 +194,3 @@ export function InfoAccordion() {
     </section>
   );
 }
-
-    
