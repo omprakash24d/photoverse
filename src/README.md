@@ -22,10 +22,10 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 *   **AI-Powered Description**: Get an AI-generated description for your uploaded images, which you can then edit.
 *   **Iterative Generation**: Regenerate poems or descriptions if the first result isn't perfect.
 *   **Editable Poem Output**: Edit the generated poem directly in the app.
-*   **Copy & Download Poem**: Easily copy the poem text or download it as a `.txt` file.
+*   **Copy & Download**: Easily copy the poem text, download it as a `.txt` file, or download the final image and poem as a single PNG.
 *   **Responsive Design**: Works beautifully on desktop and mobile devices.
 *   **Light/Dark Mode**: Theme support for user preference.
-*   **Informative Sections**: FAQs, "How it Works," and "Creative Spark" sections to guide users.
+*   **Informative Sections**: FAQs, "How it Works," and "Pro-Tips" sections to guide users.
 *   **Legal Pages**: Includes Privacy Policy, Terms of Service, and Contact Us pages.
 
 ## 🛠️ Tech Stack
@@ -35,7 +35,7 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 *   **AI Integration**: Genkit (Google AI - Gemini models)
 *   **UI Components**: ShadCN UI
 *   **Styling**: Tailwind CSS
-*   **Font Management**: `next/font` for local fonts (Geist, Geist Mono) and Google Fonts (Lora, Raleway)
+*   **Font Management**: `next/font` and Google Fonts
 *   **Form Handling**: React Hook Form (implicitly via ShadCN components)
 *   **Toasting/Notifications**: Custom `useToast` hook
 
@@ -99,6 +99,7 @@ This project is designed to run within the Firebase Studio environment.
     *   **Regenerate Poem**: Get a new version with the same settings.
     *   **Copy Poem**: Copy the text to your clipboard.
     *   **Download .txt**: Download the poem as a text file.
+    *   **Download Image**: Download the final result as a single PNG file.
     *   **Start New**: Reset the application to the beginning.
     *   **Back Button**: Navigate to previous steps to adjust settings or descriptions.
 
@@ -139,7 +140,7 @@ Links to these pages are available in the website footer.
 
 Developed by Om Prakash.
 
-*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/omprakash24d/)
+*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/omrakash24d/)
 *   **GitHub**: [OmPrakashAhir](https://github.com/omprakash24d)
 *   **Twitter**: [@OmPraka96205339](https://twitter.com/omprakash25d)
 

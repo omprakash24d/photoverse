@@ -3,7 +3,7 @@
 
 import Link from 'next/link';
 import React from 'react';
-import { Twitter, Linkedin, Github } from 'lucide-react';
+import { Twitter, Linkedin, Github, Instagram } from 'lucide-react';
 
 const developerLinks = [
   {
@@ -17,9 +17,9 @@ const developerLinks = [
     label: "GitHub"
   },
   {
-    href: "https://twitter.com/omprakash25d",
-    icon: <Twitter className="h-5 w-5" />,
-    label: "Twitter"
+    href: "https://instagram.com/omprakash25d",
+    icon: <Instagram className="h-5 w-5" />,
+    label: "Instagram"
   },
 ];
 
@@ -32,7 +32,7 @@ const legalLinks = [
 
 export function PageFooter() {
   return (
-    <footer className="w-full max-w-3xl text-center mt-12 py-6 border-t border-border">
+    <footer className="w-full max-w-3xl text-center mt-5 py-6 border-t border-border">
       <p className="text-sm text-muted-foreground font-body">
         Developed with <span className="text-accent">&hearts;</span> by Om Prakash.
       </p>

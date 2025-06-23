@@ -8,6 +8,8 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 
 *   **Image-to-Poem**: Upload an image and let AI generate a descriptive text, which then serves as the basis for a poem.
 *   **Text-to-Poem**: Prefer to use words? Manually input a description or theme to inspire your poem.
+*   **AI Image Generation**: For text-only poems, the AI generates a beautiful, artistic image to accompany your verse.
+*   **Text-to-Speech**: Listen to your generated poems read aloud by an AI voice.
 *   **"Surprise Me!" Poem**: Get an instant poem with randomized settings for a spontaneous creative spark.
 *   **Rich Customization**:
     *   **Language**: English, Hindi, Hinglish.
@@ -20,11 +22,10 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 *   **AI-Powered Description**: Get an AI-generated description for your uploaded images, which you can then edit.
 *   **Iterative Generation**: Regenerate poems or descriptions if the first result isn't perfect.
 *   **Editable Poem Output**: Edit the generated poem directly in the app.
-*   **Copy & Download Poem**: Easily copy the poem text or download it as a `.txt` file.
-*   **User Authentication**: Sign in/Sign up functionality (powered by Clerk).
+*   **Copy & Download**: Easily copy the poem text, download it as a `.txt` file, or download the final image and poem as a single PNG.
 *   **Responsive Design**: Works beautifully on desktop and mobile devices.
 *   **Light/Dark Mode**: Theme support for user preference.
-*   **Informative Sections**: FAQs, "How it Works," and "Creative Spark" sections to guide users.
+*   **Informative Sections**: FAQs, "How it Works," and "Pro-Tips" sections to guide users.
 *   **Legal Pages**: Includes Privacy Policy, Terms of Service, and Contact Us pages.
 
 ## 🛠️ Tech Stack
@@ -34,8 +35,7 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 *   **AI Integration**: Genkit (Google AI - Gemini models)
 *   **UI Components**: ShadCN UI
 *   **Styling**: Tailwind CSS
-*   **Authentication**: Clerk
-*   **Font Management**: `next/font` for local fonts (Geist, Geist Mono) and Google Fonts (Lora, Raleway)
+*   **Font Management**: `next/font` and Google Fonts
 *   **Form Handling**: React Hook Form (implicitly via ShadCN components)
 *   **Toasting/Notifications**: Custom `useToast` hook
 
@@ -44,14 +44,9 @@ Transform your photos and ideas into evocative, AI-generated poems with PhotoVer
 This project is designed to run within the Firebase Studio environment.
 
 1.  **Dependencies**: `package.json` lists all necessary dependencies. They are typically installed automatically in the Studio environment.
-2.  **Environment Variables**: For the application to function correctly, you need to set up your environment variables. Create a file named `.env` in the root of your project and add the following content. You will need to replace the placeholder values with your actual API keys.
+2.  **Environment Variables**: For the application's AI features to function correctly, you need to set up your environment variables. Create a file named `.env` in the root of your project and add the following content. You will need to replace the placeholder value with your actual API key.
 
     ```env
-    # Clerk Authentication Keys
-    # Get these from your Clerk Dashboard: https://dashboard.clerk.com/
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=YOUR_CLERK_PUBLISHABLE_KEY
-    CLERK_SECRET_KEY=YOUR_CLERK_SECRET_KEY
-
     # Google AI API Key for Genkit
     # Get this from Google AI Studio: https://aistudio.google.com/app/apikey
     GOOGLE_API_KEY=YOUR_GOOGLE_AI_API_KEY
@@ -104,6 +99,7 @@ This project is designed to run within the Firebase Studio environment.
     *   **Regenerate Poem**: Get a new version with the same settings.
     *   **Copy Poem**: Copy the text to your clipboard.
     *   **Download .txt**: Download the poem as a text file.
+    *   **Download Image**: Download the final result as a single PNG file.
     *   **Start New**: Reset the application to the beginning.
     *   **Back Button**: Navigate to previous steps to adjust settings or descriptions.
 
@@ -113,10 +109,16 @@ Located in `src/ai/flows/`:
 
 *   **`describe-image.ts`**:
     *   Takes an image (as a data URI).
-    *   Returns a detailed and evocative textual description of the image, suitable for inspiring a poem.
+    *   Returns a detailed and evocative textual description of the image.
 *   **`generate-poem.ts`**:
-    *   Takes an image description, language, style, tone, poem length, custom instructions, and poetic devices.
+    *   Takes an image description and various parameters.
     *   Returns a generated poem based on these inputs.
+*   **`generate-image.ts`**:
+    *   Takes a text description.
+    *   Returns a generated image as a data URI.
+*   **`text-to-speech.ts`**:
+    *   Takes text.
+    *   Returns a WAV audio file as a data URI.
 
 The global Genkit configuration is in `src/ai/genkit.ts`.
 
@@ -138,7 +140,7 @@ Links to these pages are available in the website footer.
 
 Developed by Om Prakash.
 
-*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/omprakash24d/)
+*   **LinkedIn**: [Connect with Om Prakash](https://www.linkedin.com/in/omrakash24d/)
 *   **GitHub**: [OmPrakashAhir](https://github.com/omprakash24d)
 *   **Twitter**: [@OmPraka96205339](https://twitter.com/omprakash25d)
 
