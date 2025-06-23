@@ -1,12 +1,33 @@
 
+"use client";
+
 import Link from 'next/link';
+import { useCallback } from 'react';
 import { PageHeader } from '@/components/page-header';
 import { PageFooter } from '@/components/page-footer';
 import { Button } from '@/components/ui/button';
-import { ArrowLeft, Mail, Linkedin, Twitter, Github } from 'lucide-react';
+import { ArrowLeft, Mail, Linkedin, Twitter, Github, Copy } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ContactUsPage() {
   const contactEmail = "om@indhinditech.com"; 
+  const { toast } = useToast();
+
+  const handleCopyEmail = useCallback(() => {
+    navigator.clipboard.writeText(contactEmail).then(() => {
+      toast({
+        title: "Email Copied!",
+        description: `${contactEmail} has been copied to your clipboard.`,
+      });
+    }).catch(err => {
+      console.error('Failed to copy email: ', err);
+      toast({
+        variant: "destructive",
+        title: "Copy Failed",
+        description: "Could not copy the email to your clipboard.",
+      });
+    });
+  }, [contactEmail, toast]);
 
   return (
     <div className="min-h-screen bg-background text-foreground flex flex-col items-center p-4 sm:p-8 font-body">
@@ -24,30 +45,35 @@ export default function ContactUsPage() {
           </p>
           
           <div className="space-y-6">
-            <div className="flex items-center space-x-3 p-4 border rounded-lg hover:shadow-md transition-shadow">
-              <Mail className="h-6 w-6 text-primary flex-shrink-0" />
-              <div>
-                <h2 className="font-semibold text-lg">Email Us Directly</h2>
-                <a href={`mailto:${contactEmail}`} className="text-accent hover:underline break-all">
-                  {contactEmail}
-                </a>
-                <p className="text-xs text-muted-foreground mt-1">For direct inquiries and support.</p>
+            <div className="flex items-center justify-between space-x-3 p-4 border rounded-lg hover:shadow-md transition-shadow">
+              <div className="flex items-center space-x-3 overflow-hidden">
+                <Mail className="h-6 w-6 text-primary flex-shrink-0" />
+                <div className="min-w-0">
+                  <h2 className="font-semibold text-lg">Email Us Directly</h2>
+                  <a href={`mailto:${contactEmail}`} className="text-accent hover:underline break-all">
+                    {contactEmail}
+                  </a>
+                  <p className="text-xs text-muted-foreground mt-1 truncate">For direct inquiries and support.</p>
+                </div>
               </div>
+              <Button variant="ghost" size="icon" onClick={handleCopyEmail} aria-label="Copy email address" className="flex-shrink-0">
+                <Copy className="h-5 w-5" />
+              </Button>
             </div>
 
             <div className="mt-10 pt-6 border-t border-border">
               <h2 className="font-semibold text-lg text-center mb-6">Connect with Om Prakash</h2>
               <div className="flex justify-center space-x-6 sm:space-x-8">
                 <a href="https://www.linkedin.com/in/omrakash24d/" target="_blank" rel="noopener noreferrer" title="LinkedIn" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Linkedin className="h-8 w-8 sm:h-10 sm:w-10" />
+                  <Linkedin className="h-8 w-8" />
                   <span className="sr-only">LinkedIn</span>
                 </a>
                 <a href="https://twitter.com/omprakash25d" target="_blank" rel="noopener noreferrer" title="Twitter" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Twitter className="h-8 w-8 sm:h-10 sm:w-10" />
+                  <Twitter className="h-8 w-8" />
                   <span className="sr-only">Twitter</span>
                 </a>
                 <a href="https://github.com/omprakash24d" target="_blank" rel="noopener noreferrer" title="GitHub" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Github className="h-8 w-8 sm:h-10 sm:w-10" />
+                  <Github className="h-8 w-8" />
                   <span className="sr-only">GitHub</span>
                 </a>
               </div>
