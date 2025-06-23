@@ -4,6 +4,7 @@
 import React from 'react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Info, ShieldCheck, Lightbulb, Sparkles, HelpCircle } from 'lucide-react';
+import { LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 
 export function InfoAccordion() {
   const howItWorksTitle = (
@@ -46,31 +47,29 @@ export function InfoAccordion() {
             <ol className="list-decimal list-inside space-y-3 pl-4">
               <li><strong>Provide Your Inspiration (Image, Text, or Surprise!):</strong>
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
-                    <li><strong>Upload an Image:</strong> Choose a photo from your device or capture a new one using your webcam. For best results, use clear, well-focused images that convey a distinct subject or mood. The AI will "see" this image to generate its initial description.</li>
-                    <li><strong>Or, Just Use Words:</strong> Don't have an image, or prefer to start differently? No problem! Select the option to "Write Description Manually." You can then directly type or paste a description of any scene, emotion, idea, or memory you'd like the poem to be about.</li>
-                    <li><strong>Feeling Lucky? Try "Surprise Me with a Poem!":</strong> For a spontaneous poetic spark, click this button on the first screen. PhotoVerse will pre-fill the poem customization form with a creative prompt and random settings to get you started quickly.</li>
+                    <li><strong>Upload an Image:</strong> Choose a photo from your device or capture a new one using your webcam. The AI will "see" this image to generate an initial description.</li>
+                    <li><strong>Or, Just Use Words:</strong> Don't have an image? No problem! Select "Write Description Manually" to type any scene, emotion, or idea for your poem's subject.</li>
+                    <li><strong>Feeling Lucky? Try "Surprise Me!":</strong> For a spontaneous spark, click this. PhotoVerse will take you to the next step with a creative prompt and random settings to get you started quickly.</li>
                 </ul>
               </li>
-              <li><strong>Review & Refine the Description (if not a "Surprise Poem"):</strong>
+              <li><strong>Craft the Perfect Poem Subject:</strong>
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
-                    <li><strong>AI-Generated (if image uploaded):</strong> If you provided an image, our advanced AI will analyze its content and generate a textual description.</li>
-                    <li><strong>Your Input is Key:</strong> This description is crucial as it forms the primary input for the poem generation AI. You can (and are encouraged to!) review this description, edit it for accuracy or emphasis, or even replace it entirely. The more evocative, detailed,and accurate the description, the richer and more relevant your poem will be!</li>
+                    <li>This step is crucial, as the description is the primary input for the AI.</li>
+                    <li>If you uploaded an image, the AI will generate a description for you. If you chose "Surprise Me," a creative prompt will be pre-filled.</li>
+                    <li>You are encouraged to **review, edit, or completely replace** this text. The more evocative and detailed the description, the richer your poem will be!</li>
                 </ul>
               </li>
               <li><strong>Customize Your Poem's Voice:</strong> Tailor the poem to your liking by selecting:
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
-                    <li><strong>Language:</strong> Choose from English, Hindi, or Hinglish.</li>
-                    <li><strong>Poetic Style:</strong> Select a style like Haiku, Free Verse, Romantic, etc. Each style has its own structural and thematic conventions.</li>
-                    <li><strong>Tone/Mood:</strong> Set the emotional feel of the poem, such as Joyful, Calm, Melancholic, etc.</li>
-                    <li><strong>Poem Length:</strong> Indicate whether you'd prefer a Short, Medium, or Long poem.</li>
+                    <li><strong>Language, Poetic Style, Tone/Mood, and Poem Length.</strong></li>
                     <li><strong>Custom Instruction (Optional):</strong> Add a specific note for the AI, like "make it rhyme" or "focus on nature."</li>
-                    <li><strong>"Surprise Me!" (Settings):</strong> On the customization screen, this button shuffles language, style, tone, and length for new creative combinations.</li>
+                    <li><strong>"Randomize Options" Button:</strong> Use this to shuffle the main settings for new creative combinations.</li>
                 </ul>
               </li>
-              <li><strong>Generate & Iterate:</strong> Once you're happy with the description and settings, click "Generate Poem." Our AI will then craft a unique piece of poetry based on your inputs.
+              <li><strong>Generate & Iterate:</strong> Once you're happy, click "Generate Poem." Our AI will craft a unique piece of poetry.
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
-                    <li><strong>Not quite right?</strong> Don't hesitate to regenerate the poem! You can also go back, tweak the description, or change any of the settings and try again. Experimentation often leads to the most delightful results.</li>
-                    <li><strong>Edit the Result:</strong> Once generated, you can directly edit the poem in the provided text area before copying or downloading.</li>
+                    <li><strong>Not quite right?</strong> Don't hesitate to use the "Regenerate Poem" button. You can also go back, tweak the description or settings, and try again.</li>
+                    <li><strong>Edit the Result:</strong> You can directly edit the final poem in the text area before copying or downloading.</li>
                 </ul>
               </li>
             </ol>
@@ -80,29 +79,26 @@ export function InfoAccordion() {
                 <h4 className="font-semibold text-foreground">Tips for Best Results:</h4>
                 <ul className="list-disc list-inside space-y-2 mt-1">
                   <li><strong>Image Quality (if used):</strong> Use clear, well-lit images. The better the AI can "see" the image, the better the initial description.</li>
-                  <li><strong>Detailed Descriptions are Key:</strong> Whether AI-generated, edited, or written from scratch, be specific! The more detail you provide (objects, colors, emotions, actions, a story), the more material the AI has for crafting a rich poem.
+                  <li><strong>Detailed Descriptions are Key:</strong> Be specific! The more detail you provide (objects, colors, emotions, actions, a story), the more material the AI has for crafting a rich poem.
                     <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
                       <li>If a poem is too abstract, try adding more concrete nouns and actions to your description.</li>
                       <li>If the poem misses the mark emotionally, ensure your description explicitly mentions the desired feelings or atmosphere.</li>
                     </ul>
                   </li>
-                  <li><strong>Experiment with Settings:</strong> Don't be afraid to try different combinations of languages, styles, and tones. A "Romantic" style will interpret your description differently than a "Haiku."
+                  <li><strong>Experiment with Settings:</strong> Don't be afraid to try different combinations. A "Romantic" style will interpret your description differently than a "Haiku."
                      <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
-                       <li>If a "Free Verse" poem feels too unstructured, try a "Sonnet" or another style with more defined rules (but ensure your description is rich enough).</li>
+                       <li>If a "Free Verse" poem feels too unstructured, try a "Sonnet" or another style with more defined rules.</li>
                        <li>If a "Short" poem feels incomplete, try "Medium" or "Long" for more development.</li>
                      </ul>
                   </li>
                    <li><strong>Master the Custom Instruction:</strong> Use this field for specific requests. Examples:
                      <ul className="list-circle list-inside pl-4 mt-1 space-y-1 text-sm">
-                       <li>"Make it rhyme" (though the AI might attempt this based on style too).</li>
+                       <li>"Make it rhyme."</li>
                        <li>"Focus on the theme of hope."</li>
                        <li>"Include a metaphor about a flowing river."</li>
-                       <li>"Ensure the poem has a narrative arc."</li>
-                       <li>"Avoid using the word 'love'."</li>
                      </ul>
                    </li>
-                   <li><strong>Iterate, Iterate, Iterate:</strong> The first poem might not be perfect. Use the "Regenerate" button. Go back and tweak the description. Change one setting at a time to see its effect. Editing the AI's initial description is often a powerful step.</li>
-                   <li><strong>Use "Surprise Me!":</strong> Both the initial "Surprise Me with a Poem!" and the "Surprise Me!" for settings on the customization page are great for breaking creative blocks or discovering unexpected combinations.</li>
+                   <li><strong>Iterate, Iterate, Iterate:</strong> The first poem might not be perfect. Use the "Regenerate" button. Go back and tweak the description. Editing the AI's initial description is often the most powerful step.</li>
                    <li><strong>Edit the Final Poem:</strong> Remember, the AI's output is a starting point. You have full control to edit the generated poem in the text area to make it truly yours.</li>
                 </ul>
               </div>
@@ -137,7 +133,7 @@ export function InfoAccordion() {
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                   <li>Try clicking "Regenerate Poem" with the same settings; the AI might offer a different take.</li>
                   <li>Go back and edit the image description. Adding more detail, changing the focus, or adjusting the tone of the description can significantly impact the poem. Refer to our "Tips for Best Results."</li>
-                  <li>Experiment with different "Poem Options" (language, style, tone, length). Use the "Surprise Me!" button on the customization page for random settings.</li>
+                  <li>Experiment with different "Poem Options" (language, style, tone, length). Use the "Randomize Options" button on the customization page for random settings.</li>
                   <li>Use the "Custom Instruction" field to give the AI more specific guidance.</li>
                   <li>Once a poem is generated, you can directly edit it in the text area provided to perfect it.</li>
                 </ul>
@@ -149,7 +145,13 @@ export function InfoAccordion() {
             </div>
              <div>
               <h4 className="font-semibold text-foreground mb-1">What languages, styles, and tones are available?</h4>
-              <div>PhotoVerse offers a variety of options! You can select different languages (e.g., English, Hindi, Hinglish), poetic styles (e.g., Haiku, Free Verse, Sonnet, Romantic), tones (e.g., Joyful, Melancholic, Reflective), and poem lengths (Short, Medium, Long). Explore the dropdown menus in the "Customize Your Poem" step to see all available choices.</div>
+              <div className="space-y-1">
+                  <div>PhotoVerse offers a variety of options to customize your poem. You can explore them in the dropdown menus, but here's a current list:</div>
+                  <div className="text-sm"><strong>Languages:</strong> {LANGUAGES.join(', ')}.</div>
+                  <div className="text-sm"><strong>Poetic Styles:</strong> {STYLES.join(', ')}.</div>
+                  <div className="text-sm"><strong>Tones/Moods:</strong> {TONES.join(', ')}.</div>
+                  <div className="text-sm"><strong>Poem Lengths:</strong> {LENGTHS.join(', ')}.</div>
+              </div>
             </div>
           </AccordionContent>
         </AccordionItem>
@@ -186,10 +188,12 @@ export function InfoAccordion() {
               <li><strong>No Third-Party Sharing (Beyond Essential AI & Auth Services):</strong> Your inputs are only shared with the specific AI models required for generating image descriptions and poems, and with the authentication provider (e.g., Clerk) if you sign in. We do not sell, rent, or share your data with any other third parties for advertising, marketing, or other purposes.</li>
               <li><strong>Ephemeral Creative Sessions (for guests):</strong> Think of your time on PhotoVerse as a creative session. If you are not logged in, once you close your browser tab or use the "Start New" button, the specific data from that session (image, description, poem) is not retained by our application.</li>
             </ul>
-            <div className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out (though specific contact info isn't part of this UI build).</div>
+            <div className="mt-2">Our goal is to provide a fun, creative tool while respecting your privacy. If you have any questions, please feel free to reach out.</div>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
     </section>
   );
 }
+
+    
