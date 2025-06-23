@@ -48,7 +48,7 @@ export function InfoAccordion() {
                 <ul className="list-disc list-inside pl-4 mt-1 space-y-1">
                     <li><strong>Upload an Image:</strong> Choose a photo from your device or capture a new one using your webcam. For best results, use clear, well-focused images that convey a distinct subject or mood. The AI will "see" this image to generate its initial description.</li>
                     <li><strong>Or, Just Use Words:</strong> Don't have an image, or prefer to start differently? No problem! Select the option to "Write Description Manually." You can then directly type or paste a description of any scene, emotion, idea, or memory you'd like the poem to be about.</li>
-                    <li><strong>Feeling Lucky? Try "Surprise Me with a Poem!":</strong> For a spontaneous poetic spark, click this button on the first screen. PhotoVerse will instantly generate a poem with random settings and a delightful, generic theme.</li>
+                    <li><strong>Feeling Lucky? Try "Surprise Me with a Poem!":</strong> For a spontaneous poetic spark, click this button on the first screen. PhotoVerse will pre-fill the poem customization form with a creative prompt and random settings to get you started quickly.</li>
                 </ul>
               </li>
               <li><strong>Review & Refine the Description (if not a "Surprise Poem"):</strong>
@@ -125,7 +125,7 @@ export function InfoAccordion() {
             </div>
              <div>
               <h4 className="font-semibold text-foreground mb-1">What is the "Surprise Me with a Poem!" feature?</h4>
-              <div>This button on the starting page lets you instantly generate a poem. PhotoVerse will pick random settings (language, style, tone, length) and use a generic creative prompt to give you a unique poem without needing an image or manual description. It's great for quick inspiration or seeing what the AI can do!</div>
+              <div>This button on the starting page is a shortcut to inspiration! It will pre-fill the poem customization form with a creative prompt and random settings for language, style, and tone. You can then review these settings, adjust them to your liking, or just hit "Generate Poem" for a fun surprise.</div>
             </div>
             <div>
               <h4 className="font-semibold text-foreground mb-1">How is the AI image description generated?</h4>

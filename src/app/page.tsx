@@ -214,10 +214,8 @@ export default function PhotoVersePage() {
     }
   }, [imageDescription, poemSettings, toast, imageDataUrl]);
 
-  const handleSurprisePoem = useCallback(async () => {
-    setIsPoemLoading(true); 
-    setGeneratedPoem(null); 
-    setImageDataUrl(null); 
+  const handleRequestSurprisePoem = useCallback(() => {
+    setImageDataUrl(null);
     setGeneratedImageUrl(null);
     setAudioDataUrl(null);
 
@@ -227,57 +225,24 @@ export default function PhotoVersePage() {
     const randomLength = LENGTHS[Math.floor(Math.random() * LENGTHS.length)];
 
     const surpriseSettings: PoemSettings = {
+      ...defaultPoemSettings, // Start with defaults to ensure all fields are present
       language: randomLanguage,
       style: randomStyle,
       tone: randomTone,
       poemLength: randomLength,
-      customInstruction: '', 
-      poeticDevices: '',
     };
     
     const surpriseDescription = "A delightful burst of spontaneous creativity!";
     
     setImageDescription(surpriseDescription); 
     setPoemSettings(surpriseSettings); 
-    setIsDescriptionEditable(false);
-
-    try {
-      const poemInput: GeneratePoemInput = {
-        imageDescription: surpriseDescription,
-        language: surpriseSettings.language,
-        style: surpriseSettings.style,
-        tone: surpriseSettings.tone,
-        poemLength: surpriseSettings.poemLength,
-        customInstruction: surpriseSettings.customInstruction || '',
-        poeticDevices: surpriseSettings.poeticDevices || '',
-      };
-      const result: GeneratePoemOutput = await generatePoem(poemInput);
-      setGeneratedPoem(result.poem);
-      setCurrentStep('display');
-      setIsPoemLoading(false);
-
-      // Kick off image and audio generation
-      setIsImageGenerating(true);
-      setIsAudioLoading(true);
-
-      const imagePromise = generateImage({ description: "Spontaneous creativity, abstract art" })
-        .then(imageResult => setGeneratedImageUrl(imageResult.imageDataUri))
-        .catch(imageError => console.error("Error generating surprise image:", imageError))
-        .finally(() => setIsImageGenerating(false));
-
-      const audioPromise = textToSpeech(result.poem)
-        .then(audioResult => setAudioDataUrl(audioResult.audioDataUri))
-        .catch(audioError => console.error("Error generating surprise audio:", audioError))
-        .finally(() => setIsAudioLoading(false));
-
-      // Promise.allSettled([imagePromise, audioPromise]);
-      
-    } catch (error) {
-      console.error("Error generating surprise poem:", error);
-      toast({ variant: "destructive", title: "Surprise Poem Failed", description: "Could not generate the surprise poem. Please try again." });
-      setCurrentStep('upload'); 
-      setIsPoemLoading(false);
-    }
+    setIsDescriptionEditable(true);
+    setCurrentStep('customize');
+    
+    toast({
+        title: "Surprise Settings Applied!",
+        description: "We've picked some random options for you. Feel free to adjust them or generate your poem!",
+    });
   }, [toast]);
 
   const handleResetPoemSettingsToDefault = useCallback(() => {
@@ -323,7 +288,7 @@ export default function PhotoVersePage() {
             onImageSelected={handleImageSelected}
             isLoading={isDescriptionLoading || isPoemLoading}
             onSkipToDescription={() => handleSkipToCustomize("")}
-            onSurprisePoemRequest={handleSurprisePoem}
+            onSurprisePoemRequest={handleRequestSurprisePoem}
           />
         )}
 
