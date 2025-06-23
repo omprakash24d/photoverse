@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useRef, useState, useCallback, useEffect } from 'react';
@@ -30,7 +31,7 @@ export function WebcamCaptureModal({ isOpen, onClose, onCapture }: WebcamCapture
         }
       } catch (err) {
         console.error("Error accessing webcam:", err);
-        setError("Could not access webcam. Please ensure permissions are granted.");
+        setError("Could not access webcam. Please ensure permissions are granted and try again.");
       }
     } else {
       setError("Webcam not supported by this browser.");
@@ -53,11 +54,11 @@ export function WebcamCaptureModal({ isOpen, onClose, onCapture }: WebcamCapture
     } else {
       stopCamera();
     }
+    // Cleanup function to stop camera on component unmount
     return () => {
-      stopCamera(); // Cleanup on unmount or if isOpen changes
+      stopCamera();
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isOpen]); // Intentionally not including startCamera/stopCamera to avoid re-triggering
+  }, [isOpen, startCamera, stopCamera]);
 
   const handleCapture = () => {
     if (videoRef.current && canvasRef.current) {
@@ -83,7 +84,6 @@ export function WebcamCaptureModal({ isOpen, onClose, onCapture }: WebcamCapture
   };
 
   const handleRetake = () => {
-    setCapturedImage(null);
     startCamera();
   };
 
@@ -96,7 +96,7 @@ export function WebcamCaptureModal({ isOpen, onClose, onCapture }: WebcamCapture
         <div className="my-4 flex flex-col items-center">
           {error && <p className="text-destructive mb-4">{error}</p>}
           {capturedImage ? (
-            <img src={capturedImage} alt="Captured" className="rounded-lg shadow-md max-w-full max-h-[480px]" />
+            <img src={capturedImage} alt="Captured" className="rounded-lg shadow-md max-w-full max-h-[480px]" data-ai-hint="webcam selfie" />
           ) : (
             <video ref={videoRef} autoPlay playsInline className={`rounded-lg shadow-md w-full max-w-[640px] h-auto ${error ? 'hidden' : ''}`} />
           )}
