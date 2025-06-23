@@ -1,15 +1,16 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2, Wand2, Volume2 } from 'lucide-react';
+import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2, Wand2, Volume2, Image as ImageIcon } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { toPng } from 'html-to-image';
 
 interface PoemResultDisplayProps {
   imageUrl: string | null;
@@ -34,6 +35,7 @@ export function PoemResultDisplay({
 }: PoemResultDisplayProps) {
   const { toast } = useToast();
   const [editablePoem, setEditablePoem] = useState<string>(poem || "");
+  const downloadRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setEditablePoem(poem || "");
@@ -82,6 +84,35 @@ export function PoemResultDisplay({
     }
   };
   
+  const handleDownloadImage = useCallback(() => {
+    if (downloadRef.current === null) {
+      return;
+    }
+    
+    toast({ title: "Generating Image...", description: "Please wait while we create your downloadable image." });
+
+    toPng(downloadRef.current, { 
+      cacheBust: true,
+      pixelRatio: 2, // For higher resolution
+      // Use a light background for the downloaded image for better compatibility
+      backgroundColor: '#fbfbff', 
+    })
+    .then((dataUrl) => {
+      const link = document.createElement('a');
+      link.download = 'photoverse-creation.png';
+      link.href = dataUrl;
+      link.click();
+    })
+    .catch((err) => {
+      console.error('Failed to download image:', err);
+      toast({
+        variant: "destructive",
+        title: "Download Failed",
+        description: "Could not download the poem as an image.",
+      });
+    });
+  }, [toast]);
+
   const showImagePanel = imageUrl || isGeneratingImage;
 
   return (
@@ -92,7 +123,10 @@ export function PoemResultDisplay({
           Behold, the poetry and art inspired by your words. Edit the poem below if you wish!
         </CardDescription>
       </CardHeader>
-      <CardContent className={`grid gap-6 items-start p-4 md:p-6 ${showImagePanel ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
+      <CardContent 
+        ref={downloadRef} 
+        className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start p-4 md:p-6 bg-card"
+      >
         {showImagePanel && (
           <div className="aspect-square w-full rounded-lg overflow-hidden border border-muted shadow-md relative flex items-center justify-center bg-muted/30">
             {isGeneratingImage ? (
@@ -106,7 +140,7 @@ export function PoemResultDisplay({
             ) : null}
           </div>
         )}
-        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col ${!showImagePanel ? 'md:col-span-1' : ''} w-full`}>
+        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col w-full ${!showImagePanel ? 'md:col-span-2' : ''}`}>
           {isGeneratingPoem && !poem ? (
             <div className="space-y-3">
               <Skeleton className="h-6 w-full" />
@@ -164,6 +198,10 @@ export function PoemResultDisplay({
         <Button onClick={handleDownloadPoemTxt} disabled={isGeneratingPoem || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           <Download className="mr-2 h-4 w-4" />
           Download .txt
+        </Button>
+        <Button onClick={handleDownloadImage} disabled={isGeneratingPoem || isGeneratingImage || !poem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+          <ImageIcon className="mr-2 h-4 w-4" />
+          Download Image
         </Button>
         <Button onClick={onStartOver} variant="default" className="w-full xs:w-auto grow sm:grow-0">
           <RotateCcw className="mr-2 h-4 w-4" /> Start New
