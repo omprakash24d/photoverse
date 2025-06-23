@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { describeImage, DescribeImageInput, DescribeImageOutput } from '@/ai/flows/describe-image';
 import { generatePoem, GeneratePoemInput, GeneratePoemOutput } from '@/ai/flows/generate-poem';
+import { generateImage, GenerateImageInput, GenerateImageOutput } from '@/ai/flows/generate-image';
 import { AppStep, PoemSettings, PoemLength, LANGUAGES, STYLES, TONES, LENGTHS } from '@/lib/types';
 import { ArrowLeft, Loader2, FileImage } from 'lucide-react';
 
@@ -25,17 +26,8 @@ const defaultPoemSettings: PoemSettings = {
   tone: 'Reflective',
   poemLength: 'Medium',
   customInstruction: '',
-  poeticDevices: '', // Added poetic devices
+  poeticDevices: '',
 };
-
-interface ResolvedThemeColors {
-  background: string;
-  foreground: string;
-  primary: string;
-  border: string;
-  card: string;
-}
-
 
 const fileToDataUri = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -55,10 +47,13 @@ export default function PhotoVersePage() {
   const [imageDescription, setImageDescription] = useState<string>('');
   const [poemSettings, setPoemSettings] = useState<PoemSettings>(defaultPoemSettings);
   const [generatedPoem, setGeneratedPoem] = useState<string | null>(null);
+  const [generatedImageUrl, setGeneratedImageUrl] = useState<string | null>(null);
 
   const [isDescriptionLoading, setIsDescriptionLoading] = useState<boolean>(false);
   const [isPoemLoading, setIsPoemLoading] = useState<boolean>(false);
   const [isDescriptionEditable, setIsDescriptionEditable] = useState<boolean>(false);
+  const [isImageGenerating, setIsImageGenerating] = useState<boolean>(false);
+
 
   const { toast } = useToast();
 
@@ -68,8 +63,10 @@ export default function PhotoVersePage() {
     setImageDescription('');
     setPoemSettings(defaultPoemSettings);
     setGeneratedPoem(null);
+    setGeneratedImageUrl(null);
     setIsDescriptionLoading(false);
     setIsPoemLoading(false);
+    setIsImageGenerating(false);
     setIsDescriptionEditable(false);
   }, []);
 
@@ -153,6 +150,8 @@ export default function PhotoVersePage() {
     }
     setIsPoemLoading(true);
     setGeneratedPoem(null); 
+    setGeneratedImageUrl(null);
+    
     try {
       const poemInput: GeneratePoemInput = {
         imageDescription,
@@ -166,18 +165,38 @@ export default function PhotoVersePage() {
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
       setCurrentStep('display');
+      setIsPoemLoading(false);
+
+      // If user started with text, generate an image for them
+      if (!imageDataUrl) {
+        setIsImageGenerating(true);
+        try {
+          const imageResult = await generateImage({ description: imageDescription });
+          setGeneratedImageUrl(imageResult.imageDataUri);
+        } catch (imageError) {
+          console.error("Error generating image:", imageError);
+          toast({
+            variant: "destructive",
+            title: "AI Image Failed",
+            description: "Could not generate an accompanying image, but your poem is ready!",
+          });
+        } finally {
+          setIsImageGenerating(false);
+        }
+      }
+
     } catch (error) {
       console.error("Error generating poem:", error);
       toast({ variant: "destructive", title: "Poem Generation Failed", description: "Could not generate the poem. Please try again or adjust your settings." });
-    } finally {
       setIsPoemLoading(false);
     }
-  }, [imageDescription, poemSettings, toast]);
+  }, [imageDescription, poemSettings, toast, imageDataUrl]);
 
   const handleSurprisePoem = useCallback(async () => {
     setIsPoemLoading(true); 
     setGeneratedPoem(null); 
     setImageDataUrl(null); 
+    setGeneratedImageUrl(null);
 
     const randomLanguage = LANGUAGES[Math.floor(Math.random() * LANGUAGES.length)];
     const randomStyle = STYLES[Math.floor(Math.random() * STYLES.length)];
@@ -212,11 +231,24 @@ export default function PhotoVersePage() {
       const result: GeneratePoemOutput = await generatePoem(poemInput);
       setGeneratedPoem(result.poem);
       setCurrentStep('display');
+      setIsPoemLoading(false);
+
+      // Also generate an image for the surprise poem
+      setIsImageGenerating(true);
+      try {
+        const imageResult = await generateImage({ description: "Spontaneous creativity, abstract art" });
+        setGeneratedImageUrl(imageResult.imageDataUri);
+      } catch (imageError) {
+        console.error("Error generating surprise image:", imageError);
+        // Don't toast here, it's a bonus
+      } finally {
+        setIsImageGenerating(false);
+      }
+      
     } catch (error) {
       console.error("Error generating surprise poem:", error);
       toast({ variant: "destructive", title: "Surprise Poem Failed", description: "Could not generate the surprise poem. Please try again." });
       setCurrentStep('upload'); 
-    } finally {
       setIsPoemLoading(false);
     }
   }, [toast]);
@@ -228,6 +260,8 @@ export default function PhotoVersePage() {
 
   const handleBack = () => {
     if (currentStep === 'display') {
+      setGeneratedPoem(null);
+      setGeneratedImageUrl(null);
       setCurrentStep('customize');
       setIsDescriptionEditable(!imageDataUrl); 
     }
@@ -291,15 +325,16 @@ export default function PhotoVersePage() {
 
         {currentStep === 'display' && (
           <PoemResultDisplay
-            imageDataUrl={imageDataUrl}
+            imageUrl={imageDataUrl || generatedImageUrl}
             poem={generatedPoem}
             isGeneratingPoem={isPoemLoading}
+            isGeneratingImage={isImageGenerating}
             onRegenerate={handleGeneratePoem} 
             onStartOver={resetState}
           />
         )}
 
-        {(isDescriptionLoading || isPoemLoading) && currentStep !== 'display' && (
+        {(isDescriptionLoading || (isPoemLoading && currentStep !== 'display')) && (
            <LoadingOverlay 
                 isDescriptionLoading={isDescriptionLoading}
                 isPoemLoading={isPoemLoading}

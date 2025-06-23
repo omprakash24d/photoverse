@@ -5,24 +5,26 @@ import React, { useState, useEffect } from 'react';
 import NextImage from 'next/image';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2 } from 'lucide-react';
+import { RefreshCw, Download, Copy, RotateCcw, Pencil, Loader2, Wand2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from '@/hooks/use-toast';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 interface PoemResultDisplayProps {
-  imageDataUrl: string | null;
+  imageUrl: string | null;
   poem: string | null;
   isGeneratingPoem: boolean;
+  isGeneratingImage: boolean;
   onRegenerate: () => void;
   onStartOver: () => void;
 }
 
 export function PoemResultDisplay({
-  imageDataUrl,
+  imageUrl,
   poem,
   isGeneratingPoem,
+  isGeneratingImage,
   onRegenerate,
   onStartOver,
 }: PoemResultDisplayProps) {
@@ -76,22 +78,31 @@ export function PoemResultDisplay({
     }
   };
   
+  const showImagePanel = imageUrl || isGeneratingImage;
 
   return (
     <Card className="w-full shadow-lg overflow-hidden">
       <CardHeader>
         <CardTitle className="font-headline text-3xl text-center text-primary">Your PhotoVerse!</CardTitle>
         <CardDescription className="text-center font-body">
-          Behold, the poetry inspired by your {imageDataUrl ? "image" : "description"}. Edit it below if you wish!
+          Behold, the poetry and art inspired by your words. Edit the poem below if you wish!
         </CardDescription>
       </CardHeader>
-      <CardContent className={`grid gap-6 items-start p-4 md:p-6 ${imageDataUrl ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
-        {imageDataUrl && (
-          <div className="aspect-square w-full rounded-lg overflow-hidden border border-muted shadow-md relative">
-            <NextImage src={imageDataUrl} alt="Source image for the generated poem" layout="fill" objectFit="contain" data-ai-hint="artistic photography" />
+      <CardContent className={`grid gap-6 items-start p-4 md:p-6 ${showImagePanel ? 'md:grid-cols-2' : 'md:grid-cols-1'}`}>
+        {showImagePanel && (
+          <div className="aspect-square w-full rounded-lg overflow-hidden border border-muted shadow-md relative flex items-center justify-center bg-muted/30">
+            {isGeneratingImage ? (
+                <div className="text-center p-4">
+                    <Loader2 className="h-12 w-12 text-primary animate-spin mb-4 mx-auto"/>
+                    <p className="font-headline text-primary">Generating AI Artwork...</p>
+                    <p className="text-sm text-muted-foreground">This may take a moment.</p>
+                </div>
+            ) : imageUrl ? (
+              <NextImage src={imageUrl} alt="AI generated or user-provided image for the poem" layout="fill" objectFit="contain" data-ai-hint="artistic photography" />
+            ) : null}
           </div>
         )}
-        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col ${!imageDataUrl ? 'md:col-span-1' : ''} w-full`}>
+        <div className={`bg-card-foreground/5 p-4 sm:p-6 rounded-lg shadow-inner min-h-[200px] flex flex-col ${!showImagePanel ? 'md:col-span-1' : ''} w-full`}>
           {isGeneratingPoem && !poem ? (
             <div className="space-y-3">
               <Skeleton className="h-6 w-full" />
@@ -119,9 +130,9 @@ export function PoemResultDisplay({
         </div>
       </CardContent>
       <CardFooter className="flex flex-wrap justify-center items-center gap-3 p-4 md:p-6 bg-muted/30 border-t">
-        <Button onClick={onRegenerate} disabled={isGeneratingPoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
+        <Button onClick={onRegenerate} disabled={isGeneratingPoem || isGeneratingImage} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           {isGeneratingPoem ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
-          {isGeneratingPoem ? 'Regenerating...' : 'Regenerate Poem'}
+          {isGeneratingPoem ? 'Generating...' : 'Regenerate'}
         </Button>
         <Button onClick={handleCopyPoem} disabled={isGeneratingPoem || !editablePoem} variant="outline" className="w-full xs:w-auto grow sm:grow-0">
           <Copy className="mr-2 h-4 w-4" />
