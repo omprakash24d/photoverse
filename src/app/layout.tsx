@@ -2,12 +2,9 @@
 import { type Metadata } from 'next';
 import { Geist, Geist_Mono } from 'next/font/google';
 
-import { ClerkProvider } from '@clerk/nextjs';
-
 import { ThemeProvider } from '@/components/theme-provider';
 import { Toaster } from '@/components/ui/toaster';
 import { siteMetadata } from '@/lib/metadata';
-import { ClerkEnabledProvider } from '@/hooks/use-clerk-enabled';
 
 import './globals.css';
 
@@ -23,29 +20,11 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = siteMetadata;
 
-const PUBLISHABLE_KEY = process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY;
-// Check if the key is present and not the placeholder value, trimming to be safe
-const isClerkEnabled = !!(PUBLISHABLE_KEY && PUBLISHABLE_KEY.trim() !== 'YOUR_CLERK_PUBLISHABLE_KEY');
-
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const providers = (
-    <ClerkEnabledProvider isEnabled={isClerkEnabled}>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
-        {children}
-        <Toaster />
-      </ThemeProvider>
-    </ClerkEnabledProvider>
-  );
-
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
@@ -61,7 +40,15 @@ export default function RootLayout({
         <link rel="manifest" href="/site.webmanifest" />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} font-body antialiased`}>
-        {isClerkEnabled ? <ClerkProvider>{providers}</ClerkProvider> : providers}
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          {children}
+          <Toaster />
+        </ThemeProvider>
       </body>
     </html>
   );
