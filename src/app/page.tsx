@@ -168,13 +168,15 @@ export default function PhotoVersePage() {
     setIsDescriptionEditable(false); 
   }, []);
 
-  const handleSkipToCustomize = useCallback((currentDesc: string = "") => {
+  const handleSkipToCustomize = useCallback(() => {
     if (imageDataUrl) { 
-        setImageDescription(currentDesc || "A beautiful scene"); 
-        setIsDescriptionEditable(true); 
+      // User is on 'describe' page and wants to write their own description
+      setImageDescription(""); // Clear description for fresh input
+      setIsDescriptionEditable(true); 
     } else { 
-        setImageDescription(currentDesc || ""); 
-        setIsDescriptionEditable(true); 
+      // User is on 'upload' page and clicked "Write Description Manually"
+      setImageDescription(""); 
+      setIsDescriptionEditable(true); 
     }
     setCurrentStep('customize');
   }, [imageDataUrl]);
@@ -318,7 +320,7 @@ export default function PhotoVersePage() {
           <PhotoUpload
             onImageSelected={handleImageSelected}
             isLoading={isDescriptionLoading || isPoemLoading}
-            onSkipToDescription={() => handleSkipToCustomize("")}
+            onSkipToDescription={() => handleSkipToCustomize()}
             onSurprisePoemRequest={handleRequestSurprisePoem}
           />
         )}

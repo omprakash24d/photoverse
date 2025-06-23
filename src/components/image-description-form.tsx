@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Check, SkipForward, RefreshCw } from 'lucide-react';
+import { Loader2, Check, Pencil, RefreshCw } from 'lucide-react';
 import { Skeleton } from './ui/skeleton';
 
 interface ImageDescriptionFormProps {
@@ -15,7 +15,7 @@ interface ImageDescriptionFormProps {
   initialDescription: string;
   isFetchingDescription: boolean;
   onDescriptionConfirm: (description: string) => void;
-  onSkip: (currentDescription: string) => void; // User wants to skip AI and customize poem settings (possibly editing this desc)
+  onSkip: () => void; // User wants to write their own description
   onFetchDescriptionRequest?: () => void; 
 }
 
@@ -43,8 +43,7 @@ export function ImageDescriptionForm({
   };
   
   const handleSkip = () => {
-    // Pass the current state of the description, even if it's the AI one or edited by user
-    onSkip(description.trim()); 
+    onSkip(); 
   };
 
   return (
@@ -52,8 +51,7 @@ export function ImageDescriptionForm({
       <CardHeader>
         <CardTitle className="font-headline text-2xl text-center">Describe Your Image</CardTitle>
         <CardDescription className="text-center font-body">
-          Our AI has described your image. Review or edit it below.
-          You can also skip this and write your own in the next step.
+          Our AI has described your image. Review or edit it below, or choose to write your own.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -107,7 +105,7 @@ export function ImageDescriptionForm({
           <Check className="mr-2 h-4 w-4" /> Use this Description
         </Button>
         <Button onClick={handleSkip} variant="secondary" className="w-full sm:w-auto" disabled={isFetchingDescription}>
-          <SkipForward className="mr-2 h-4 w-4" /> Skip & Customize Poem
+          <Pencil className="mr-2 h-4 w-4" /> Write My Own Description
         </Button>
       </CardFooter>
     </Card>

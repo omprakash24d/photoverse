@@ -60,6 +60,11 @@ const textToSpeechFlow = ai.defineFlow(
     outputSchema: TextToSpeechOutputSchema,
   },
   async (text) => {
+    // Prevent calling the API with empty text, which causes an error.
+    if (!text || text.trim() === '') {
+      throw new Error('Text-to-speech input cannot be empty.');
+    }
+    
     const { media } = await ai.generate({
       model: googleAI.model('gemini-2.5-flash-preview-tts'),
       config: {
